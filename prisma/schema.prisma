@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Produtos {
+  id                        Int      @id @default(autoincrement())
+  marca                     String
+  descricao                 String
+  unidade                   String   @default("UN")
+  ncm                       String
+  valor_unitario            Float
+  ean                       String?
+  codigo                    String
+  codigo_produto            BigInt   @unique
+  codigo_produto_integracao String
+  peso_bruto                Float
+  ageToBuy                  Int      @default(0)
+  qtd                       Float
+  dias_garantia             Int
+  tagId                     String?
+  tagChecked                Boolean?
+  datamatrixId              String?
+  aliquota_cofins           Float
+  aliquota_ibpt             Float
+  aliquota_icms             Float
+  aliquota_pis              Float
+  cest                      String?
+  cfop                      String?
+  csosn_icms                String?
+  cst_cofins                String?
+  cst_icms                  String?
+  cst_pis                   String?
+  per_icms_fcp              Float
+  red_base_cofins           Float
+  red_base_icms             Float
+  red_base_pis              Float
+  tipoItem                  String
+}

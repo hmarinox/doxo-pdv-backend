@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Produtos" ALTER COLUMN "tagId" DROP NOT NULL,
+ALTER COLUMN "tagChecked" DROP NOT NULL,
+ALTER COLUMN "datamatrixId" DROP NOT NULL;
