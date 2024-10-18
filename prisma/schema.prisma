@@ -9,11 +9,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model Produtos {
+model Products {
   id                        Int      @id @default(autoincrement())
   marca                     String
   descricao                 String
@@ -46,4 +46,145 @@ model Produtos {
   red_base_icms             Float
   red_base_pis              Float
   tipoItem                  String
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now())
+}
+
+model Companies {
+  id    Int      @id @default(autoincrement())
+  name  String
+  cnpj  String
+  ie    String
+  Store Stores[]
+}
+
+model Stores {
+  id           Int    @id @default(autoincrement())
+  name         String
+  companyId    Int
+  street       String
+  number       String
+  neighborhood String
+  city         String
+  state        String
+  country      String
+  zipCode      String
+  complement   String
+  emitModel    Int
+  ufCode       Int
+  cityCode     Int
+
+  Company   Companies   @relation(fields: [companyId], references: [id])
+  Pdv       Pdv[]
+  Employees Employees[]
+}
+
+model Pdv {
+  id                 Int                  @id @default(autoincrement())
+  storeId            Int
+  name               String
+  macAddress         String               @unique
+  Store              Stores               @relation(fields: [storeId], references: [id])
+  TaxReceiptSettings TaxReceiptSettings[]
+}
+
+model Sales {
+  id            Int             @id @default(autoincrement())
+  saleId        String          @unique
+  pdvId         Int
+  SalesProducts SalesProducts[]
+  TaxReceipt    TaxReceipt[]
+}
+
+model SalesProducts {
+  id                        Int      @id @default(autoincrement())
+  saleId                    Int
+  marca                     String
+  descricao                 String
+  unidade                   String   @default("UN")
+  ncm                       String
+  valor_unitario            Float
+  ean                       String?
+  codigo                    String
+  codigo_produto            BigInt   @unique
+  codigo_produto_integracao String
+  peso_bruto                Float
+  ageToBuy                  Int      @default(0)
+  qtd                       Float
+  dias_garantia             Int
+  tagId                     String?
+  tagChecked                Boolean?
+  datamatrixId              String?
+  aliquota_cofins           Float
+  aliquota_ibpt             Float
+  aliquota_icms             Float
+  aliquota_pis              Float
+  cest                      String?
+  cfop                      String?
+  csosn_icms                String?
+  cst_cofins                String?
+  cst_icms                  String?
+  cst_pis                   String?
+  per_icms_fcp              Float
+  red_base_cofins           Float
+  red_base_icms             Float
+  red_base_pis              Float
+  tipoItem                  String
+  createdAt                 DateTime
+  Sales                     Sales    @relation(fields: [saleId], references: [id])
+}
+
+model TaxReceiptSettings {
+  id              Int @id @default(autoincrement())
+  pdvId           Int
+  taxReceiptSerie Int
+  Pdv             Pdv @relation(fields: [pdvId], references: [id])
+}
+
+model TaxReceipt {
+  id                 Int             @id @default(autoincrement())
+  saleId             Int
+  taxReceiptEmitDate DateTime
+  taxReceiptNumber   Int
+  taxReceiptSerie    Int
+  createdAt          DateTime
+  Sale               Sales           @relation(fields: [saleId], references: [id])
+  TaxReceiptXML      TaxReceiptXML[]
+}
+
+model TaxReceiptXML {
+  id            Int        @id @default(autoincrement())
+  taxReceiptId  Int
+  MigrateResult String
+  createdAt     DateTime
+  TaxReceipt    TaxReceipt @relation(fields: [taxReceiptId], references: [id])
+}
+
+model Employees {
+  id               Int           @id @default(autoincrement())
+  storeId          Int
+  name             String
+  email            String
+  password         String
+  registrationCode String
+  level            employeeLevel
+  Stores           Stores        @relation(fields: [storeId], references: [id])
+}
+
+model Users {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String
+  password String
+  level    userLevel
+}
+
+enum userLevel {
+  ADMIN
+  OPERATOR
+}
+
+enum employeeLevel {
+  MANAGER
+  COLLABORATOR
 }

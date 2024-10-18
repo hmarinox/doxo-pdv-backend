@@ -1,11 +1,12 @@
-import cors, { CorsOptions } from 'cors'
-import swaggerDocs from './docs/swagger_output.json'
 import 'express-async-errors'
 import express from 'express'
+import cors, { CorsOptions } from 'cors'
+import swaggerDocs from './docs/swagger_output.json'
 import swaggerUi from 'swagger-ui-express'
 import routes from './routes'
-import getAllProductsOmieAndSyncWithDB from './integrations/erp/omie/databaseSync'
 import { Cron } from './services/OmieDatabaseSync'
+import { Errors } from './middleware/errors'
+
 const PORT = process.env.PORT
 function server() 
 {
@@ -35,7 +36,7 @@ function server()
     app.use(
         "/docs",
         swaggerUi.serve, swaggerUi.setup( swaggerDocs ) );
-    // app.use( Errors )
+    app.use( Errors )
     app.listen( PORT, () => { console.log( `litens on ${ PORT }` ) } )
 }
 

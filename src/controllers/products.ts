@@ -34,7 +34,7 @@ export const Products = {
             } = req.body;
 
 
-            const newProduct = await prisma.produtos.create( {
+            const newProduct = await prisma.products.create( {
                 data: {
                     valor_unitario,
                     aliquota_cofins,
@@ -75,7 +75,7 @@ export const Products = {
         {
             const { id } = req.params;
 
-            const findOneProducts = await prisma.produtos.findUnique( {
+            const findOneProducts = await prisma.products.findUnique( {
                 where: {
                     id: parseInt( id ),
                 },
@@ -100,7 +100,7 @@ export const Products = {
         {
             const { ean } = req.params;
             console.log( ean )
-            const findOneProducts = await prisma.produtos.findFirst( {
+            const findOneProducts = await prisma.products.findFirst( {
                 where: {
                     ean: ean,
                 },
@@ -131,7 +131,7 @@ export const Products = {
         {
             const { tagId } = req.params;
 
-            const findOneProducts = await prisma.produtos.findFirst( {
+            const findOneProducts = await prisma.products.findFirst( {
                 where: {
                     tagId: tagId,
                 },
@@ -156,7 +156,7 @@ export const Products = {
         {
             const { datamatrixId } = req.params;
 
-            const findOneProducts = await prisma.produtos.findFirst( {
+            const findOneProducts = await prisma.products.findFirst( {
                 where: {
                     datamatrixId: datamatrixId,
                 },
@@ -179,7 +179,7 @@ export const Products = {
     {
         try
         {
-            const findAllProducts = await prisma.produtos.findMany();
+            const findAllProducts = await prisma.products.findMany();
 
             if ( findAllProducts )
             {
@@ -200,7 +200,7 @@ export const Products = {
         {
             const { id } = req.params;
 
-            const destroyProducts = await prisma.produtos.delete( {
+            const destroyProducts = await prisma.products.delete( {
                 where: {
                     id: parseInt( id ),
                 },
