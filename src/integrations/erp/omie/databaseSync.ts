@@ -18,7 +18,7 @@ const getAllProductsOmieAndSyncWithDB = async () =>
         ];
         const path = "/geral/produtos/";
 
-        const findAllProducts = await prisma.produtos.findMany();
+        const findAllProducts = await prisma.products.findMany();
         const finAllProductsOmie = await consumeOmie(
             callExample,
             paramExample,
@@ -44,7 +44,7 @@ const getAllProductsOmieAndSyncWithDB = async () =>
 
                 if ( existingProductIndex === -1 )
                 {
-                    await prisma.produtos.create( {
+                    await prisma.products.create( {
                         data:
                         {
                             valor_unitario: omieProduct.valor_unitario,
@@ -76,7 +76,7 @@ const getAllProductsOmieAndSyncWithDB = async () =>
 
                     if ( !isEqual( existingProduct, omieProduct ) )
                     {
-                        await prisma.produtos.update( {
+                        await prisma.products.update( {
                             where: {
                                 codigo_produto: omieProduct.codigo_produto
                             },
