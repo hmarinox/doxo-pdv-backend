@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
 import prisma from '../database/prisma-client'
 import { z } from 'zod';
-import { NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
+import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
+import { threadId } from 'worker_threads';
 
 const createCompanySchema = z.object( {
     name: z.string(),
@@ -23,20 +24,15 @@ export const Companies = {
         }
         try
         {
-
-
-
-            const createdCompany = await prisma.companies.create( {
+            await prisma.companies.create( {
                 data: company
             } );
 
-            return res.status( 201 ).json( { message: "Empresa criada com sucesso!" } );
         } catch ( error )
         {
-            console.error( "Erro ao criar o produto:", error );
-            throw RegistrationCompletedError( "Erro ao criar o produto" )
-
+            throw RegistrationCompletedError( "Erro ao criar empresa" )
         }
+        return res.status( 201 ).json( { message: "Empresa criada com sucesso!" } );
     },
     GetCompanyById: async ( req: Request, res: Response ): Promise<any> =>
     {
@@ -44,64 +40,68 @@ export const Companies = {
         {
             const { id } = req.params as { id: string }
 
-            const company = await prisma.companies.findUnique( {
+            const company = await prisma.companies.findUniqueOrThrow( {
                 where: {
                     id: parseInt( id ),
                 },
             } );
 
             if ( !company )
-                throw NotFound( "usuário não encontrado" )
+                throw NotFound( "empresa não encontrada!" )
 
             return res.status( 200 ).json( company )
         } catch ( error )
         {
-            console.error( "Erro ao buscar o produto:", error );
-            return res.status( 500 ).json( { error: "Erro ao buscar o produto" } );
+            throw GenericError( "Erro ao buscar empresa" )
         }
     },
     FindAllCompanies: async ( req: Request, res: Response ): Promise<any> =>
     {
+
+        let findAllCompanies: {
+            name: string;
+            cnpj: string;
+            ie: string;
+            id: number;
+        }[]
         try
         {
-            const findAllCompanies = await prisma.companies.findMany();
+            findAllCompanies = await prisma.companies.findMany();
 
-            if ( findAllCompanies )
+            if ( !findAllCompanies )
             {
-                return res.status( 200 ).json( findAllCompanies );
-            } else
-            {
-                return res.status( 404 ).json( { error: "Produto não encontrado" } );
+                throw NotFound( "Empresas não encontradas" )
             }
         } catch ( error )
         {
-            console.error( "Erro ao buscar o produto:", error );
-            return res.status( 500 ).json( { error: "Erro ao buscar o produto" } );
+            throw GenericError( "Erro ao buscar empresas" )
         }
+        return res.status( 200 ).json( findAllCompanies );
     },
     DestroyCompanies: async ( req: Request, res: Response ): Promise<any> =>
     {
+        let destroyCompanies: {
+            name: string;
+            cnpj: string;
+            ie: string;
+            id: number;
+        }
         try
         {
-            const { id } = req.params;
-
-            const destroyCompanies = await prisma.companies.delete( {
+            const { id } = req.params as { id: string };
+            destroyCompanies = await prisma.companies.delete( {
                 where: {
                     id: parseInt( id ),
                 },
             } );
 
-            if ( destroyCompanies )
-            {
-                return res.status( 200 ).json( destroyCompanies );
-            } else
-            {
-                return res.status( 404 ).json( { error: "Produto não deletado" } );
-            }
+            if ( !destroyCompanies )
+                throw NotFound( "Empresa não encontrada!" )
+
         } catch ( error )
         {
-            console.error( "Erro ao deletar o produto:", error );
-            return res.status( 500 ).json( { error: "Erro ao deletar o produto" } );
+            throw GenericError( "Erro ao deletar empresa" )
         }
+        return res.status( 200 ).json( { message: "Empresa deletada com sucesso!" } );
     }
 }
