@@ -80,18 +80,20 @@ model Stores {
 }
 
 model Pdv {
-  id                 Int                  @id @default(autoincrement())
-  storeId            Int
-  name               String
-  macAddress         String               @unique
-  Store              Stores               @relation(fields: [storeId], references: [id])
-  TaxReceiptSettings TaxReceiptSettings[]
+  id              Int     @id @default(autoincrement())
+  storeId         Int
+  name            String
+  macAddress      String  @unique
+  taxReceiptSerie Int
+  Store           Stores  @relation(fields: [storeId], references: [id])
+  Sales           Sales[]
 }
 
 model Sales {
   id            Int             @id @default(autoincrement())
   saleId        String          @unique
   pdvId         Int
+  Pdv           Pdv             @relation(fields: [pdvId], references: [id])
   SalesProducts SalesProducts[]
   TaxReceipt    TaxReceipt[]
 }
@@ -132,13 +134,6 @@ model SalesProducts {
   tipoItem                  String
   createdAt                 DateTime
   Sales                     Sales    @relation(fields: [saleId], references: [id])
-}
-
-model TaxReceiptSettings {
-  id              Int @id @default(autoincrement())
-  pdvId           Int
-  taxReceiptSerie Int
-  Pdv             Pdv @relation(fields: [pdvId], references: [id])
 }
 
 model TaxReceipt {

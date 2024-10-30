@@ -1,0 +1,2 @@
+-- AddForeignKey
+ALTER TABLE `Sales` ADD CONSTRAINT `Sales_pdvId_fkey` FOREIGN KEY (`pdvId`) REFERENCES `Pdv`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

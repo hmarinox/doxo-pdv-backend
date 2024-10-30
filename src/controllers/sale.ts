@@ -2,19 +2,52 @@ import { Request, Response } from 'express'
 import prisma from '../database/prisma-client'
 import { z } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
-import { machine } from 'os';
+import { v7 as uuidv7 } from 'uuid';
+const createProductSchema = z.object( {
+    saleId: z.number().optional(),
+    marca: z.string(),
+    descricao: z.string(),
+    unidade: z.string(),
+    ncm: z.string().optional().default( `` ),
+    valor_unitario: z.number(),
+    ean: z.string().optional(),
+    codigo: z.string(),
+    codigo_produto: z.number(),
+    codigo_produto_integracao: z.string(),
+    peso_bruto: z.number(),
+    ageToBuy: z.number(),
+    qtd: z.number(),
+    dias_garantia: z.number(),
+    tagId: z.string().optional(),
+    tagChecked: z.boolean().optional(),
+    datamatrixId: z.string().optional(),
+    aliquota_cofins: z.number(),
+    aliquota_ibpt: z.number(),
+    aliquota_icms: z.number(),
+    aliquota_pis: z.number(),
+    cest: z.string().optional(),
+    cfop: z.string().optional(),
+    csosn_icms: z.string().optional(),
+    cst_cofins: z.string().optional(),
+    cst_icms: z.string().optional(),
+    cst_pis: z.string().optional(),
+    per_icms_fcp: z.number(),
+    red_base_cofins: z.number(),
+    red_base_icms: z.number(),
+    red_base_pis: z.number(),
+    tipoItem: z.string(),
+} )
+type ProductType = z.infer<typeof createProductSchema>
 
 
-const createPdvSchema = z.object( {
-    name: z.string(),
-    storeId: z.number(),
-    macAddress: z.string(),
-    taxReceiptSerie: z.number()
+const createSaleSchema = z.object( {
+    products: z.array( createProductSchema ),
+    pdvId: z.number()
 
 } )
 
-type createPdvType = z.infer<typeof createPdvSchema>
-export const Pdv = {
+type createPdvType = z.infer<typeof createSaleSchema>
+export const Sale = {
     Create: async ( req: Request, res: Response ): Promise<any> =>
     {
         /*
@@ -63,24 +96,36 @@ export const Pdv = {
                   }
               }
           */
-        let pdv: createPdvType;
+        let sale: createPdvType;
         try
         {
-            pdv = createPdvSchema.parse( req.body )
+            sale = createSaleSchema.parse( req.body )
         } catch ( error: any )
         {
             throw ZodErrorMessage( error )
         }
+        const saleId = uuidv7()
         try
         {
-            await prisma.pdv.create( {
+            const saleCreated = await prisma.sales.create( {
                 data: {
-                    name: pdv.name,
-                    macAddress: pdv.macAddress,
-                    storeId: pdv.storeId,
-                    taxReceiptSerie: pdv.taxReceiptSerie
+
+                    saleId,
+                    pdvId: sale.pdvId
                 }
-            } );
+            } )
+            if ( !saleCreated )
+
+                throw RegistrationCompletedError( "Erro ao criar pdv" )
+            const products = sale.products.map( ( product ) =>
+            {
+                product.saleId = saleCreated.id
+                return product
+            } )
+            await prisma.salesProducts.createMany( {
+                data: products,
+            } )
+
 
         } catch ( error )
         {
@@ -141,7 +186,7 @@ export const Pdv = {
         const { macAddress } = req.params as { macAddress: string }
         try
         {
-            pdv = createPdvSchema.parse( req.body )
+            pdv = createSaleSchema.parse( req.body )
         } catch ( error: any )
         {
             throw ZodErrorMessage( error )
