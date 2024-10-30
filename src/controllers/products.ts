@@ -178,9 +178,14 @@ export const Products = {
                 id: parseInt( id ),
             },
         } );
+        const product = JSON.parse(
+            JSON.stringify( findOneProducts, ( key, value ) =>
+                typeof value === 'bigint' ? value.toString() : value
+            )
+        );
         if ( !findOneProducts )
             throw NotFound( "Produto não encontrado" )
-        return res.status( 200 ).json( findOneProducts );
+        return res.status( 200 ).json( product );
     },
     FindByBarcode: async ( req: Request, res: Response ): Promise<any> =>
     {
@@ -223,8 +228,12 @@ export const Products = {
 
             if ( !findOneProducts )
                 throw NotFound( "Produto não encontrado" );
-
-            return res.status( 200 ).json( findOneProducts );
+            const product = JSON.parse(
+                JSON.stringify( findOneProducts, ( key, value ) =>
+                    typeof value === 'bigint' ? value.toString() : value
+                )
+            );
+            return res.status( 200 ).json( product );
         } catch ( error )
         {
             console.error( "Erro ao buscar o produto:", error );
@@ -245,7 +254,12 @@ export const Products = {
 
             if ( !findOneProducts )
                 throw NotFound( "Produto não encontrado" );
-            return res.status( 200 ).json( findOneProducts );
+            const product = JSON.parse(
+                JSON.stringify( findOneProducts, ( key, value ) =>
+                    typeof value === 'bigint' ? value.toString() : value
+                )
+            );
+            return res.status( 200 ).json( product );
         } catch ( error )
         {
             console.error( "Erro ao buscar o produto:", error );

@@ -341,8 +341,8 @@
                 "zipCode": "",
                 "complement": "",
                 "emitModel": 0,
-                "ufCode": 0,
-                "cityCode": 0
+                "ufCode": "string",
+                "cityCode": "string"
               }
             }
           }
@@ -376,6 +376,103 @@
           }
         }
       },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pdv/": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pdv registrado com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao registrar pdv"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "storeId": 0,
+                "macAddress": "string"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pdv/{macAddress}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "macAddress",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/pdv/{id}": {
       "delete": {
         "description": "",
         "parameters": [

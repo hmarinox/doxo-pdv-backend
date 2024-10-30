@@ -2,27 +2,17 @@ import { Request, Response } from 'express'
 import prisma from '../database/prisma-client'
 import { z } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
-import { threadId } from 'worker_threads';
 
-const createStoreSchema = z.object( {
+
+const createPdvSchema = z.object( {
     name: z.string(),
-    companyId: z.number(),
-    street: z.string(),
-    number: z.string(),
-    neighborhood: z.string(),
-    city: z.string(),
-    state: z.string(),
-    country: z.string(),
-    zipCode: z.string(),
-    complement: z.string(),
-    emitModel: z.number(),
-    ufCode: z.string(),
-    cityCode: z.string(),
+    storeId: z.number(),
+    macAddress: z.string()
 
 } )
 
-type createStoreType = z.infer<typeof createStoreSchema>
-export const Stores = {
+type createPdvType = z.infer<typeof createPdvSchema>
+export const Pdv = {
     Create: async ( req: Request, res: Response ): Promise<any> =>
     {
         /*
@@ -31,7 +21,7 @@ export const Stores = {
                       content: {
                         "application/json": {
                             example:{
-                                message:  "Loja criada com sucesso!"
+                                message:  "Pdv registrado com sucesso!"
                             }
                         }
                     }
@@ -41,7 +31,7 @@ export const Stores = {
                    content: {
                         "application/json": {
                             example:{
-                                message: "Erro ao criar loja"
+                                message: "Erro ao registrar pdv"
                             }
                         }
                     }
@@ -62,130 +52,101 @@ export const Stores = {
                       "application/json": {
                           example: {
                             name: "",
-                            companyId: 0,
-                            street: "",
-                            number: "",
-                            neighborhood: "",
-                            city: "",
-                            state: "",
-                            country: "",
-                            zipCode: "",
-                            complement: "",
-                            emitModel: 0,
-                            ufCode: "string",
-                            cityCode: "string",
+                            storeId: 0,
+                            name: "string",
+                            macAddress: "string"
                           }
                       }
                   }
               }
           */
-        let store: createStoreType;
+        let store: createPdvType;
         try
         {
-            store = createStoreSchema.parse( req.body )
+            store = createPdvSchema.parse( req.body )
         } catch ( error: any )
         {
             throw ZodErrorMessage( error )
         }
         try
         {
-            await prisma.stores.create( {
+            await prisma.pdv.create( {
                 data: store
             } );
 
         } catch ( error )
         {
-            throw RegistrationCompletedError( "Erro ao criar loja" )
+            throw RegistrationCompletedError( "Erro ao criar pdv" )
         }
-        return res.status( 201 ).json( { message: "loja criada com sucesso!" } );
+        return res.status( 201 ).json( { message: "pdv registrado com sucesso!" } );
     },
-    FindById: async ( req: Request, res: Response ): Promise<any> =>
+    FindBymacAddress: async ( req: Request, res: Response ): Promise<any> =>
     {
         try
         {
-            const { id } = req.params as { id: string }
+            const { macAddress } = req.params as { macAddress: string }
 
-            const store = await prisma.stores.findFirst( {
+            const store = await prisma.pdv.findFirst( {
                 where: {
-                    id: parseInt( id )
+                    macAddress: macAddress
                 },
             } );
 
             if ( !store )
-                throw NotFound( "loja não encontrada!" )
+                throw NotFound( "pdv não encontrado!" )
 
             return res.status( 200 ).json( store )
         } catch ( error )
         {
-            throw GenericError( "Erro ao buscar loja" )
+            throw GenericError( "Erro ao buscar pdv" )
         }
     },
     FindAll: async ( req: Request, res: Response ): Promise<any> =>
     {
 
-        let findAllStores: {
-            number: string;
+        let findAllPdvs: {
             name: string;
-            companyId: number;
-            street: string;
-            neighborhood: string;
-            city: string;
-            state: string;
-            country: string;
-            zipCode: string;
-            complement: string;
-            emitModel: number;
-            ufCode: string;
-            cityCode: string;
+            storeId: number;
+            macAddress: string;
             id: number;
         }[]
         try
         {
-            findAllStores = await prisma.stores.findMany();
+            findAllPdvs = await prisma.pdv.findMany();
 
-            if ( !findAllStores )
+            if ( !findAllPdvs )
             {
                 throw NotFound( "Lojas não encontradas" )
             }
         } catch ( error )
         {
-            throw GenericError( "Erro ao buscar lojas" )
+            throw GenericError( "Erro ao buscar pdvs" )
         }
-        return res.status( 200 ).json( findAllStores );
+        return res.status( 200 ).json( findAllPdvs );
     },
     Delete: async ( req: Request, res: Response ): Promise<any> =>
     {
-        let deleteStores: {
-            number: string;
+        let deletePdvs: {
             name: string;
-            companyId: number;
-            street: string;
-            neighborhood: string;
-            city: string;
-            state: string;
-            country: string;
-            zipCode: string;
-            complement: string;
-            emitModel: number;
-            ufCode: string;
-            cityCode: string;
+            storeId: number;
+            macAddress: string;
             id: number;
         }
         try
         {
             const { id } = req.params as { id: string };
-            deleteStores = await prisma.stores.delete( {
+            deletePdvs = await prisma.pdv.delete( {
                 where: {
                     id: parseInt( id ),
                 },
             } );
 
-            if ( !deleteStores )
+            if ( !deletePdvs )
                 throw NotFound( "Loja não encontrada!" )
 
         } catch ( error )
         {
-            throw GenericError( "Erro ao deletar loja" )
+            throw GenericError( "Erro ao deletar pdv" )
         }
         return res.status( 200 ).json( { message: "Loja deletada com sucesso!" } );
     }

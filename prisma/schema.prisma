@@ -71,8 +71,8 @@ model Stores {
   zipCode      String
   complement   String
   emitModel    Int
-  ufCode       Int
-  cityCode     Int
+  ufCode       String
+  cityCode     String
 
   Company   Companies   @relation(fields: [companyId], references: [id])
   Pdv       Pdv[]

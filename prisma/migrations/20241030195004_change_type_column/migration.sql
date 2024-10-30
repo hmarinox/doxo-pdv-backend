@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Stores` MODIFY `ufCode` VARCHAR(191) NOT NULL,
+    MODIFY `cityCode` VARCHAR(191) NOT NULL;
