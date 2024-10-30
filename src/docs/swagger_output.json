@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "version": "v1.0.0",
-    "title": "Swagger Demo Project",
+    "title": "Swagger Doxo",
     "description": "Implementation of Swagger with TypeScript"
   },
   "servers": [
@@ -11,25 +11,388 @@
       "description": ""
     }
   ],
-  "paths": {},
-  "components": {
-    "schemas": {
-      "login": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "master@master.com"
+  "paths": {
+    "/api/v1/products/": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Produto cadastrado com sucesso!"
+                }
+              }
+            }
           },
-          "password": {
-            "type": "string",
-            "example": "`123456789"
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao cadastrar o produto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
           }
         },
-        "required": [
-          "email",
-          "password"
-        ]
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "marca": "string",
+                "descricao": "string",
+                "unidade": "string",
+                "ncm": "string",
+                "valor_unitario": 0,
+                "ean": "string",
+                "codigo": "string",
+                "codigo_produto": 0,
+                "codigo_produto_integracao": "string",
+                "peso_bruto": 0,
+                "ageToBuy": 0,
+                "qtd": 0,
+                "dias_garantia": 0,
+                "tagId": "string",
+                "tagChecked": false,
+                "datamatrixId": "string",
+                "aliquota_cofins": 0,
+                "aliquota_ibpt": 0,
+                "aliquota_icms": 0,
+                "aliquota_pis": 0,
+                "cest": "string",
+                "cfop": "string",
+                "csosn_icms": "string",
+                "cst_cofins": "string",
+                "cst_icms": "string",
+                "cst_pis": "string",
+                "per_icms_fcp": 0,
+                "red_base_cofins": 0,
+                "red_base_icms": 0,
+                "red_base_pis": 0,
+                "tipoItem": "string"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/products/ean/{ean}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "ean",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/products/tag/{tagId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/products/datamatrix/{datamatrixId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "datamatrixId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/companies/": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Empresa criada com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao criar empresa"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "cnpj": "string",
+                "ie": "string"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/companies/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Loja criada com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao criar loja"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "",
+                "companyId": 0,
+                "street": "",
+                "number": "",
+                "neighborhood": "",
+                "city": "",
+                "state": "",
+                "country": "",
+                "zipCode": "",
+                "complement": "",
+                "emitModel": 0,
+                "ufCode": 0,
+                "cityCode": 0
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     }
   }

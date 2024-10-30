@@ -1,8 +1,8 @@
 import express from 'express'
 import { Companies } from '../controllers/companies';
 let companiesRoutes = express.Router()
-companiesRoutes.post( "/", Companies.CreateCompany );
-companiesRoutes.get( "/:id", Companies.GetCompanyById );
-companiesRoutes.get( "/", Companies.FindAllCompanies );
-companiesRoutes.delete( "/:id", Companies.DestroyCompanies );
+companiesRoutes.post( "/", Companies.Create );
+companiesRoutes.get( "/:id", Companies.FindById );
+companiesRoutes.get( "/", Companies.FindAll );
+companiesRoutes.delete( "/:id", Companies.Delete );
 export default companiesRoutes

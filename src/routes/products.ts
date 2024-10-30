@@ -1,11 +1,11 @@
 import express from 'express'
 import { Products } from '../controllers/products';
 let productsRoutes = express.Router()
-productsRoutes.post( "/", Products.createProducts );
-productsRoutes.get( "/:id", Products.findOneProducts );
-productsRoutes.get( "/ean/:ean", Products.findOneProductsByBarcode );
-productsRoutes.get( "/tag/:tagId", Products.findOneProductsByTagId );
-productsRoutes.get( "/datamatrix/:datamatrixId", Products.findOneProductsByDatamatrixId );
-productsRoutes.delete( "/:id", Products.destroyProducts );
-productsRoutes.get( "/", Products.findAllProducts );
+productsRoutes.post( "/", Products.Create );
+productsRoutes.get( "/:id", Products.FindById );
+productsRoutes.get( "/ean/:ean", Products.FindByBarcode );
+productsRoutes.get( "/tag/:tagId", Products.FindByTagId );
+productsRoutes.get( "/datamatrix/:datamatrixId", Products.FindByDatamatrixId );
+productsRoutes.delete( "/:id", Products.Delete );
+productsRoutes.get( "/", Products.FindAll );
 export default productsRoutes

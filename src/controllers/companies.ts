@@ -12,8 +12,52 @@ const createCompanySchema = z.object( {
 
 type createCompanyType = z.infer<typeof createCompanySchema>
 export const Companies = {
-    CreateCompany: async ( req: Request, res: Response ): Promise<any> =>
+    Create: async ( req: Request, res: Response ): Promise<any> =>
     {
+        /*
+               #swagger.responses[201] = { 
+                    description: "Created",
+                      content: {
+                        "application/json": {
+                            example:{
+                                message:  "Empresa criada com sucesso!"
+                            }
+                        }
+                    }
+               }
+               #swagger.responses[409] = { 
+                    description: "Registration Error",
+                   content: {
+                        "application/json": {
+                            example:{
+                                message: "Erro ao criar empresa"
+                            }
+                        }
+                    }
+               }
+               #swagger.responses[500] = { 
+                    description:  "Schema validation error",
+                    content: {
+                        "application/json": {
+                            example:{
+                                message: "string"
+                            }
+                        }
+                    }
+               }
+                #swagger.requestBody = {
+                  required: true,
+                  content: {
+                      "application/json": {
+                          example: {
+                            name: "string",
+                            cnpj: "string",
+                            ie: "string",
+                          }
+                      }
+                  }
+              }
+          */
         let company: createCompanyType;
         try
         {
@@ -34,7 +78,7 @@ export const Companies = {
         }
         return res.status( 201 ).json( { message: "Empresa criada com sucesso!" } );
     },
-    GetCompanyById: async ( req: Request, res: Response ): Promise<any> =>
+    FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
         try
         {
@@ -55,7 +99,7 @@ export const Companies = {
             throw GenericError( "Erro ao buscar empresa" )
         }
     },
-    FindAllCompanies: async ( req: Request, res: Response ): Promise<any> =>
+    FindAll: async ( req: Request, res: Response ): Promise<any> =>
     {
 
         let findAllCompanies: {
@@ -78,9 +122,9 @@ export const Companies = {
         }
         return res.status( 200 ).json( findAllCompanies );
     },
-    DestroyCompanies: async ( req: Request, res: Response ): Promise<any> =>
+    Delete: async ( req: Request, res: Response ): Promise<any> =>
     {
-        let destroyCompanies: {
+        let deleteCompany: {
             name: string;
             cnpj: string;
             ie: string;
@@ -89,13 +133,13 @@ export const Companies = {
         try
         {
             const { id } = req.params as { id: string };
-            destroyCompanies = await prisma.companies.delete( {
+            deleteCompany = await prisma.companies.delete( {
                 where: {
                     id: parseInt( id ),
                 },
             } );
 
-            if ( !destroyCompanies )
+            if ( !deleteCompany )
                 throw NotFound( "Empresa não encontrada!" )
 
         } catch ( error )

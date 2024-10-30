@@ -8,7 +8,7 @@ function ApiError( message: string, statusCode?: number ): IApiError
     return error
 }
 
-export function GenericError( message: string )
+export function GenericError( message: string = "Erro interno do servidor!" )
 {
     return ApiError( message, 500 )
 }

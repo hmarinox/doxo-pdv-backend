@@ -3,7 +3,7 @@ import swaggerAutogen from 'swagger-autogen';
 const doc = {
     info: {
         version: 'v1.0.0',
-        title: 'Swagger Demo Project',
+        title: 'Swagger Doxo',
         description: 'Implementation of Swagger with TypeScript'
     },
     servers: [
@@ -12,20 +12,7 @@ const doc = {
             description: ''
         },
     ],
-    components: {
-        schemas: {
-            login: {
-                $email: "master@master.com",
-                $password: "`123456789"
-            }
-        }
-        // securitySchemes: {
-        //     bearerAuth: {
-        //         type: 'http',
-        //         scheme: 'bearer',
-        //     }
-        // }
-    }
+
 };
 
 const outputFile = './swagger_output.json';

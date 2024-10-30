@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx --env-file .env  --watch ./src/server.ts",
+    "dev": "npm run swagger && tsx --env-file .env  --watch ./src/server.ts",
     "swagger": "tsx  ./src/docs/swagger.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
