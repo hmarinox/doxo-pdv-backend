@@ -1,8 +1,10 @@
 import { Request, Response } from 'express'
 import prisma from '../database/prisma-client'
 import { z } from 'zod';
+import dayjs from 'dayjs'
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
 import { v7 as uuidv7 } from 'uuid';
+import { JsonValue } from '@prisma/client/runtime/library';
 const createProductSchema = z.object( {
     saleId: z.number().optional(),
     marca: z.string(),
@@ -42,7 +44,12 @@ type ProductType = z.infer<typeof createProductSchema>
 
 const createSaleSchema = z.object( {
     products: z.array( createProductSchema ),
-    pdvId: z.number()
+    pdvId: z.number(),
+    taxReceiptEmitDate: z.string().datetime(),
+    taxReceiptNumber: z.number(),
+    taxReceiptSerie: z.number(),
+    taxReceiptKey: z.string(),
+    MigrateResult: z.string()
 
 } )
 
@@ -104,185 +111,112 @@ export const Sale = {
         {
             throw ZodErrorMessage( error )
         }
+        if ( sale.products.length == 0 )
+            throw RegistrationCompletedError( "Necessário ter produtos!" )
         const saleId = uuidv7()
+
+
         try
         {
             const saleCreated = await prisma.sales.create( {
                 data: {
 
                     saleId,
-                    pdvId: sale.pdvId
+                    pdvId: sale.pdvId,
+                    SalesProducts: {
+                        create: {
+                            createdAt: sale.taxReceiptEmitDate,
+                            products: sale.products
+                        }
+                    },
+                    TaxReceipt: {
+                        create: {
+                            taxReceiptEmitDate: sale.taxReceiptEmitDate,
+                            taxReceiptNumber: sale.taxReceiptNumber,
+                            taxReceiptSerie: sale.taxReceiptSerie,
+                            TaxReceiptXML: {
+                                create: {
+                                    MigrateResult: sale.MigrateResult,
+                                }
+                            }
+                        }
+                    }
+
+
+
                 }
             } )
             if ( !saleCreated )
+                throw RegistrationCompletedError( "Erro ao registrar venda" )
 
-                throw RegistrationCompletedError( "Erro ao criar pdv" )
-            const products = sale.products.map( ( product ) =>
-            {
-                product.saleId = saleCreated.id
-                return product
-            } )
-            await prisma.salesProducts.createMany( {
-                data: products,
-            } )
 
 
         } catch ( error )
         {
             throw RegistrationCompletedError( "Erro ao criar pdv" )
         }
-        return res.status( 201 ).json( { message: "pdv registrado com sucesso!", pdv } );
+        return res.status( 201 ).json( { message: "venda registrada com sucesso!" } );
     },
 
-    Update: async ( req: Request, res: Response ): Promise<any> =>
+
+
+    FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
-        /*
-               #swagger.responses[201] = { 
-                    description: "Created",
-                      content: {
-                        "application/json": {
-                            example:{
-                                message:  "Pdv registrado com sucesso!"
-                            }
-                        }
-                    }
-               }
-               #swagger.responses[409] = { 
-                    description: "Registration Error",
-                   content: {
-                        "application/json": {
-                            example:{
-                                message: "Erro ao registrar pdv"
-                            }
-                        }
-                    }
-               }
-               #swagger.responses[500] = { 
-                    description:  "Schema validation error",
-                    content: {
-                        "application/json": {
-                            example:{
-                                message: "string"
-                            }
-                        }
-                    }
-               }
-                #swagger.requestBody = {
-                  required: true,
-                  content: {
-                      "application/json": {
-                          example: {
-                            name: "",
-                            storeId: 0,
-                            name: "string",
-                            macAddress: "string",
-                            taxReceiptSerie: 260
-                          }
-                      }
-                  }
-              }
-          */
-        let pdv: createPdvType;
-        const { macAddress } = req.params as { macAddress: string }
         try
         {
-            pdv = createSaleSchema.parse( req.body )
-        } catch ( error: any )
-        {
-            throw ZodErrorMessage( error )
-        }
-        try
-        {
-            let pdvUpdated = await prisma.pdv.update( {
+            const { id } = req.params as { id: string }
+
+            const sale = await prisma.sales.findFirst( {
                 where: {
-
-                    macAddress: macAddress
-
+                    id: parseInt( id )
                 },
-                data: {
-                    name: pdv.name,
-                    storeId: pdv.storeId,
-                    taxReceiptSerie: pdv.taxReceiptSerie
+                include: {
+                    SalesProducts: true,
+                    TaxReceipt: true
                 }
             } );
 
+            if ( !sale )
+                throw NotFound( "Venda não encontrada!" )
+
+            return res.status( 200 ).json( sale )
         } catch ( error )
         {
-            throw RegistrationCompletedError( "Erro ao criar pdv" )
-        }
-        return res.status( 201 ).json( { message: "pdv registrado com sucesso!" } );
-    },
-
-    FindBymacAddress: async ( req: Request, res: Response ): Promise<any> =>
-    {
-        try
-        {
-            const { macAddress } = req.params as { macAddress: string }
-
-            const pdv = await prisma.pdv.findFirst( {
-                where: {
-                    macAddress: macAddress
-                },
-            } );
-
-            if ( !pdv )
-                throw NotFound( "pdv não encontrado!" )
-
-            return res.status( 200 ).json( pdv )
-        } catch ( error )
-        {
-            throw GenericError( "Erro ao buscar pdv" )
+            throw GenericError( "Erro ao buscar venda" )
         }
     },
     FindAll: async ( req: Request, res: Response ): Promise<any> =>
     {
-
-        let findAllPdvs: {
-            name: string;
-            storeId: number;
-            macAddress: string;
-            taxReceiptSerie: number;
+        let findAllSales: ( {
+            SalesProducts: {
+                saleId: number;
+                products: JsonValue;
+                id: number;
+                createdAt: Date;
+            }[];
+        } & {
+            saleId: string;
+            pdvId: number;
             id: number;
-        }[]
+        } )[]
+
         try
         {
-            findAllPdvs = await prisma.pdv.findMany();
+            findAllSales = await prisma.sales.findMany( {
+                include: {
+                    SalesProducts: true
+                }
+            } );
 
-            if ( !findAllPdvs )
+            if ( !findAllSales )
             {
-                throw NotFound( "Lojas não encontradas" )
+                throw NotFound( "Nenhum registro de venda encontrado!" )
             }
         } catch ( error )
         {
-            throw GenericError( "Erro ao buscar pdvs" )
+            throw GenericError( "Erro ao buscar registros de vendas" )
         }
-        return res.status( 200 ).json( findAllPdvs );
+        return res.status( 200 ).json( findAllSales );
     },
-    Delete: async ( req: Request, res: Response ): Promise<any> =>
-    {
-        let deletePdvs: {
-            name: string;
-            storeId: number;
-            macAddress: string;
-            taxReceiptSerie: number;
-            id: number;
-        }
-        try
-        {
-            const { id } = req.params as { id: string };
-            deletePdvs = await prisma.pdv.delete( {
-                where: {
-                    id: parseInt( id ),
-                },
-            } );
 
-            if ( !deletePdvs )
-                throw NotFound( "Loja não encontrada!" )
-
-        } catch ( error )
-        {
-            throw GenericError( "Erro ao deletar pdv" )
-        }
-        return res.status( 200 ).json( { message: "Loja deletada com sucesso!" } );
-    }
 }

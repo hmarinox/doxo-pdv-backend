@@ -22,7 +22,7 @@ model Products {
   valor_unitario            Float
   ean                       String?
   codigo                    String
-  codigo_produto            BigInt   @unique
+  codigo_produto            BigInt   @unique @db.BigInt
   codigo_produto_integracao String
   peso_bruto                Float
   ageToBuy                  Int      @default(0)
@@ -99,59 +99,30 @@ model Sales {
 }
 
 model SalesProducts {
-  id                        Int      @id @default(autoincrement())
-  saleId                    Int
-  marca                     String
-  descricao                 String
-  unidade                   String   @default("UN")
-  ncm                       String
-  valor_unitario            Float
-  ean                       String?
-  codigo                    String
-  codigo_produto            BigInt   @unique
-  codigo_produto_integracao String
-  peso_bruto                Float
-  ageToBuy                  Int      @default(0)
-  qtd                       Float
-  dias_garantia             Int
-  tagId                     String?
-  tagChecked                Boolean?
-  datamatrixId              String?
-  aliquota_cofins           Float
-  aliquota_ibpt             Float
-  aliquota_icms             Float
-  aliquota_pis              Float
-  cest                      String?
-  cfop                      String?
-  csosn_icms                String?
-  cst_cofins                String?
-  cst_icms                  String?
-  cst_pis                   String?
-  per_icms_fcp              Float
-  red_base_cofins           Float
-  red_base_icms             Float
-  red_base_pis              Float
-  tipoItem                  String
-  createdAt                 DateTime
-  Sales                     Sales    @relation(fields: [saleId], references: [id])
+  id        Int      @id @default(autoincrement())
+  saleId    Int
+  products  Json
+  createdAt DateTime
+  Sales     Sales    @relation(fields: [saleId], references: [id])
 }
 
 model TaxReceipt {
-  id                 Int             @id @default(autoincrement())
+  id                 Int            @id @default(autoincrement())
   saleId             Int
   taxReceiptEmitDate DateTime
   taxReceiptNumber   Int
   taxReceiptSerie    Int
-  createdAt          DateTime
-  Sale               Sales           @relation(fields: [saleId], references: [id])
-  TaxReceiptXML      TaxReceiptXML[]
+  taxReceiptKey      String
+  createdAt          DateTime       @default(now())
+  Sale               Sales          @relation(fields: [saleId], references: [id])
+  TaxReceiptXML      TaxReceiptXML?
 }
 
 model TaxReceiptXML {
   id            Int        @id @default(autoincrement())
-  taxReceiptId  Int
-  MigrateResult String
-  createdAt     DateTime
+  taxReceiptId  Int        @unique
+  MigrateResult String     @db.LongText
+  createdAt     DateTime   @default(now())
   TaxReceipt    TaxReceipt @relation(fields: [taxReceiptId], references: [id])
 }
 
