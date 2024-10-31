@@ -134,6 +134,7 @@ export const Sale = {
                             taxReceiptEmitDate: sale.taxReceiptEmitDate,
                             taxReceiptNumber: sale.taxReceiptNumber,
                             taxReceiptSerie: sale.taxReceiptSerie,
+                            taxReceiptKey: sale.taxReceiptKey,
                             TaxReceiptXML: {
                                 create: {
                                     MigrateResult: sale.MigrateResult,
@@ -157,9 +158,6 @@ export const Sale = {
         }
         return res.status( 201 ).json( { message: "venda registrada com sucesso!" } );
     },
-
-
-
     FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
         try
@@ -218,5 +216,33 @@ export const Sale = {
         }
         return res.status( 200 ).json( findAllSales );
     },
+    FindLastTaxReceiptSequence: async ( req: Request, res: Response ): Promise<any> =>
+    {
+        try
+        {
+            const { pdvId } = req.params as { pdvId: string }
+
+            const lastTaxReceipt = await prisma.taxReceipt.findFirst( {
+                orderBy: [{ id: 'desc' }],
+
+                where: {
+                    Sale: {
+                        pdvId: parseInt( pdvId )
+                    },
+                },
+                select: {
+                    id: true,
+                    taxReceiptNumber: true
+                },
+            } );
+            if ( !lastTaxReceipt )
+                throw NotFound( "Última nota não encontrada!" )
+
+            return res.status( 200 ).json( lastTaxReceipt )
+        } catch ( error )
+        {
+            throw GenericError( "Erro ao buscar nota" )
+        }
+    }
 
 }
