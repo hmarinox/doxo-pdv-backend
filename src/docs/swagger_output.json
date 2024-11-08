@@ -437,7 +437,8 @@
               "example": {
                 "name": "string",
                 "storeId": 0,
-                "macAddress": "string"
+                "macAddress": "string",
+                "taxReceiptSerie": 260
               }
             }
           }
@@ -478,6 +479,104 @@
         "parameters": [
           {
             "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/sale/": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pdv registrado com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao registrar pdv"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "storeId": 0,
+                "macAddress": "string",
+                "taxReceiptSerie": 260
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/sale/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/sale/taxReceipt/{pdvId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "pdvId",
             "in": "path",
             "required": true,
             "schema": {

@@ -183,6 +183,7 @@ export const Pdv = {
             if ( !pdv )
                 throw NotFound( "pdv não encontrado!" )
 
+
             return res.status( 200 ).json( pdv )
         } catch ( error )
         {
