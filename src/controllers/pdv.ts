@@ -6,6 +6,7 @@ import { machine } from 'os';
 
 
 const createPdvSchema = z.object( {
+    id: z.number().optional(),
     name: z.string(),
     storeId: z.number(),
     macAddress: z.string(),
@@ -73,20 +74,23 @@ export const Pdv = {
         }
         try
         {
-            await prisma.pdv.create( {
-                data: {
+            await prisma.pdv.upsert( {
+
+                where: { id: pdv.id },
+                create: {
                     name: pdv.name,
                     macAddress: pdv.macAddress,
                     storeId: pdv.storeId,
                     taxReceiptSerie: pdv.taxReceiptSerie
-                }
+                },
+                update: pdv
             } );
 
         } catch ( error )
         {
             throw RegistrationCompletedError( "Erro ao criar pdv" )
         }
-        return res.status( 201 ).json( { message: "pdv registrado com sucesso!", pdv } );
+        return res.status( 201 ).json( { message: pdv.id ? "Pdv atualizado com sucessos!" : "Pdv registrado com sucesso!" } );
     },
 
     Update: async ( req: Request, res: Response ): Promise<any> =>

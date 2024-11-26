@@ -53,13 +53,13 @@ model Products {
 model Companies {
   id    Int      @id @default(autoincrement())
   name  String
-  cnpj  String
+  cnpj  String   @unique
   ie    String
   Store Stores[]
 }
 
 model Stores {
-  id           Int    @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   name         String
   companyId    Int
   street       String
@@ -67,9 +67,9 @@ model Stores {
   neighborhood String
   city         String
   state        String
-  country      String
+  country      String  @default("Brasil")
   zipCode      String
-  complement   String
+  complement   String?
   emitModel    Int
   ufCode       String
   cityCode     String
@@ -84,7 +84,7 @@ model Pdv {
   storeId         Int
   name            String
   macAddress      String  @unique
-  taxReceiptSerie Int
+  taxReceiptSerie Int     @unique
   Store           Stores  @relation(fields: [storeId], references: [id])
   Sales           Sales[]
 }

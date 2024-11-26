@@ -3,8 +3,10 @@ import prisma from '../database/prisma-client'
 import { z } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
 import { threadId } from 'worker_threads';
+import { cpSync } from 'fs';
 
 const createCompanySchema = z.object( {
+    id: z.number().optional(),
     name: z.string(),
     cnpj: z.string(),
     ie: z.string(),
@@ -12,7 +14,7 @@ const createCompanySchema = z.object( {
 
 type createCompanyType = z.infer<typeof createCompanySchema>
 export const Companies = {
-    Create: async ( req: Request, res: Response ): Promise<any> =>
+    CreateOrUpdate: async ( req: Request, res: Response ): Promise<any> =>
     {
         /*
                #swagger.responses[201] = { 
@@ -66,17 +68,25 @@ export const Companies = {
         {
             throw ZodErrorMessage( error )
         }
+        console.log( "compnay = ", company )
         try
         {
-            await prisma.companies.create( {
-                data: company
+            await prisma.companies.upsert( {
+                where: { id: company.id },
+                update: company,
+                create: {
+                    name: company.name,
+                    cnpj: company.cnpj,
+                    ie: company.ie
+                }
             } );
 
         } catch ( error )
         {
+            console.log( error )
             throw RegistrationCompletedError( "Erro ao criar empresa" )
         }
-        return res.status( 201 ).json( { message: "Empresa criada com sucesso!" } );
+        return res.status( 201 ).json( { message: company.id ? "Empresa atualizada com sucesso!" : "Empresa criada com sucesso!" } );
     },
     FindById: async ( req: Request, res: Response ): Promise<any> =>
     {

@@ -368,6 +368,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

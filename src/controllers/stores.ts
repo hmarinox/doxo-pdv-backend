@@ -5,6 +5,7 @@ import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } f
 import { threadId } from 'worker_threads';
 
 const createStoreSchema = z.object( {
+    id: z.number().optional(),
     name: z.string(),
     companyId: z.number(),
     street: z.string(),
@@ -12,9 +13,9 @@ const createStoreSchema = z.object( {
     neighborhood: z.string(),
     city: z.string(),
     state: z.string(),
-    country: z.string(),
+    country: z.string().optional(),
     zipCode: z.string(),
-    complement: z.string(),
+    complement: z.string().optional(),
     emitModel: z.number(),
     ufCode: z.string(),
     cityCode: z.string(),
@@ -89,28 +90,51 @@ export const Stores = {
         }
         try
         {
-            await prisma.stores.create( {
-                data: store
+            await prisma.stores.upsert( {
+                where: { id: store.id },
+                update: store,
+                create: {
+                    name: store.name,
+                    companyId: store.companyId,
+                    street: store.street,
+                    number: store.number,
+                    neighborhood: store.neighborhood,
+                    city: store.city,
+                    state: store.state,
+                    country: store.country,
+                    zipCode: store.zipCode,
+                    complement: store.complement,
+                    emitModel: store.emitModel,
+                    ufCode: store.ufCode,
+                    cityCode: store.cityCode
+                }
             } );
 
         } catch ( error )
         {
             throw RegistrationCompletedError( "Erro ao criar loja" )
         }
-        return res.status( 201 ).json( { message: "loja criada com sucesso!" } );
+        return res.status( 201 ).json( { message: store.id ? "Loja atualizada com sucesso!" : "Loja criada com sucesso!" } );
     },
     FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
         try
         {
             const { id } = req.params as { id: string }
+            const { companyId } = req.query as { companyId: string }
+            let whereClause: { id?: number, companyId?: number } = {
+                id: parseInt( id )
+            }
 
+            if ( id === "0" )
+                whereClause = {
+                    companyId: parseInt( companyId )
+                }
+            console.log( "where clause =", whereClause )
             const store = await prisma.stores.findFirst( {
-                where: {
-                    id: parseInt( id )
-                },
+                where: whereClause
             } );
-
+            console.log( "store = ", store )
             if ( !store )
                 throw NotFound( "loja não encontrada!" )
 
