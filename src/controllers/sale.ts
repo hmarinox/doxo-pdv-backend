@@ -216,7 +216,7 @@ export const Sale = {
         }
         return res.status( 200 ).json( findAllSales );
     },
-    FindLastTaxReceiptSequence: async ( req: Request, res: Response ): Promise<any> =>
+    FindSaleInfo: async ( req: Request, res: Response ): Promise<any> =>
     {
         try
         {
@@ -232,7 +232,18 @@ export const Sale = {
                 },
                 select: {
                     id: true,
-                    taxReceiptNumber: true
+                    taxReceiptNumber: true,
+                    Sale: {
+                        select: {
+                            Pdv: {
+                                select: {
+                                    taxReceiptSerie: true,
+
+                                }
+                            }
+                        }
+                    }
+
                 },
             } );
             if ( !lastTaxReceipt )

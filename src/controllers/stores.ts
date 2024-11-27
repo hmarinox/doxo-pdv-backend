@@ -144,6 +144,51 @@ export const Stores = {
             throw GenericError( "Erro ao buscar loja" )
         }
     },
+    FindByPdvId: async ( req: Request, res: Response ): Promise<any> =>
+    {
+        try
+        {
+            const { id } = req.params as { id: string }
+            const { companyId } = req.query as { companyId: string }
+
+
+            const store = await prisma.pdv.findFirst( {
+                where: {
+                    id: parseInt( id )
+                },
+                select: {
+                    Store: {
+                        select: {
+                            number: true,
+                            id: true,
+                            name: true,
+                            companyId: true,
+                            street: true,
+                            neighborhood: true,
+                            city: true,
+                            state: true,
+                            country: true,
+                            zipCode: true,
+                            complement: true,
+                            emitModel: true,
+                            ufCode: true,
+                            cityCode: true,
+                            Company: true
+                        }
+                    },
+
+                }
+            } );
+            console.log( "store = ", store )
+            if ( !store )
+                throw NotFound( "loja não encontrada!" )
+
+            return res.status( 200 ).json( store )
+        } catch ( error )
+        {
+            throw GenericError( "Erro ao buscar loja" )
+        }
+    },
     FindAll: async ( req: Request, res: Response ): Promise<any> =>
     {
 

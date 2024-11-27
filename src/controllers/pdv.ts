@@ -194,6 +194,28 @@ export const Pdv = {
             throw GenericError( "Erro ao buscar pdv" )
         }
     },
+    FindById: async ( req: Request, res: Response ): Promise<any> =>
+    {
+        try
+        {
+            const { id } = req.params as { id: string }
+            console.log( id )
+            const pdv = await prisma.pdv.findFirst( {
+                where: {
+                    id: parseInt( id )
+                },
+            } );
+
+            if ( !pdv )
+                throw NotFound( "pdv não encontrado!" )
+
+
+            return res.status( 200 ).json( pdv )
+        } catch ( error )
+        {
+            throw GenericError( "Erro ao buscar pdv" )
+        }
+    },
     FindAll: async ( req: Request, res: Response ): Promise<any> =>
     {
 
