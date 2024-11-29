@@ -102,7 +102,7 @@ export const Stores = {
                     city: store.city,
                     state: store.state,
                     country: store.country,
-                    zipCode: store.zipCode,
+                    zipCode: store.zipCode.replace( /[^a-zA-Z0-9]/g, "" ),
                     complement: store.complement,
                     emitModel: store.emitModel,
                     ufCode: store.ufCode,

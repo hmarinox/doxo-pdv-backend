@@ -10,34 +10,36 @@ const createProductSchema = z.object( {
     marca: z.string(),
     descricao: z.string(),
     unidade: z.string(),
-    ncm: z.string().optional().default( `` ),
+    ncm: z.string().nullable().optional().default( `` ),
     valor_unitario: z.number(),
-    ean: z.string().optional(),
+    ean: z.string().nullable().optional(),
     codigo: z.string(),
-    codigo_produto: z.number(),
+    codigo_produto: z.coerce.number(),
     codigo_produto_integracao: z.string(),
     peso_bruto: z.number(),
     ageToBuy: z.number(),
     qtd: z.number(),
     dias_garantia: z.number(),
-    tagId: z.string().optional(),
-    tagChecked: z.boolean().optional(),
-    datamatrixId: z.string().optional(),
+    tagId: z.string().nullable().optional(),
+    tagChecked: z.boolean().nullable().optional().default( false ),
+    datamatrixId: z.string().nullable().optional(),
     aliquota_cofins: z.number(),
     aliquota_ibpt: z.number(),
     aliquota_icms: z.number(),
     aliquota_pis: z.number(),
-    cest: z.string().optional(),
-    cfop: z.string().optional(),
-    csosn_icms: z.string().optional(),
-    cst_cofins: z.string().optional(),
-    cst_icms: z.string().optional(),
-    cst_pis: z.string().optional(),
+    cest: z.string().nullable().optional(),
+    cfop: z.string().nullable().optional(),
+    csosn_icms: z.string().nullable().optional(),
+    cst_cofins: z.string().nullable().optional(),
+    cst_icms: z.string().nullable().optional(),
+    cst_pis: z.string().nullable().optional(),
     per_icms_fcp: z.number(),
     red_base_cofins: z.number(),
     red_base_icms: z.number(),
     red_base_pis: z.number(),
     tipoItem: z.string(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
 } )
 type ProductType = z.infer<typeof createProductSchema>
 
@@ -45,7 +47,7 @@ type ProductType = z.infer<typeof createProductSchema>
 const createSaleSchema = z.object( {
     products: z.array( createProductSchema ),
     pdvId: z.number(),
-    taxReceiptEmitDate: z.string().datetime(),
+    taxReceiptEmitDate: z.string().datetime( { offset: true } ),
     taxReceiptNumber: z.number(),
     taxReceiptSerie: z.number(),
     taxReceiptKey: z.string(),
@@ -220,8 +222,39 @@ export const Sale = {
     {
         try
         {
+            console.log( "FindSaleInfo" )
             const { pdvId } = req.params as { pdvId: string }
+            console.log( pdvId )
+            const checkpopulate = await prisma.taxReceipt.findMany( {
+                select: {
+                    id: true,
+                    taxReceiptNumber: true,
+                    Sale: {
+                        select: {
+                            Pdv: {
+                                select: {
+                                    taxReceiptSerie: true,
 
+                                }
+                            }
+                        }
+                    }
+
+                },
+            } )
+            if ( checkpopulate.length === 0 )
+            {
+                const pdv = await prisma.pdv.findFirstOrThrow( { where: { id: parseInt( pdvId ) } } )
+                return res.status( 200 ).json( {
+                    taxReceiptNumber: 0,
+                    id: 0,
+                    Sale: {
+                        Pdv: {
+                            taxReceiptSerie: pdv.taxReceiptSerie
+                        }
+                    }
+                } )
+            }
             const lastTaxReceipt = await prisma.taxReceipt.findFirst( {
                 orderBy: [{ id: 'desc' }],
 

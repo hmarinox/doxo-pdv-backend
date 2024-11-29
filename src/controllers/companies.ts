@@ -76,7 +76,7 @@ export const Companies = {
                 update: company,
                 create: {
                     name: company.name,
-                    cnpj: company.cnpj,
+                    cnpj: company.cnpj.replace( /[^a-zA-Z0-9]/g, "" ),
                     ie: company.ie
                 }
             } );
