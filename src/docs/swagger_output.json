@@ -402,6 +402,33 @@
         }
       }
     },
+    "/api/v1/stores/pdv-id/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/pdv/": {
       "post": {
         "description": "",
@@ -596,7 +623,7 @@
         }
       }
     },
-    "/api/v1/sale/taxReceipt/{pdvId}": {
+    "/api/v1/sale/tax-receipt/{pdvId}": {
       "get": {
         "description": "",
         "parameters": [

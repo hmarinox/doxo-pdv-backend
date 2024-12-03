@@ -189,19 +189,19 @@ export const Products = {
     },
     FindByBarcode: async ( req: Request, res: Response ): Promise<any> =>
     {
+
+
+        const { ean } = req.params as { ean: string };
+        const findOneProducts = await prisma.products.findFirst( {
+            where: {
+                ean: ean,
+            },
+        } );
+
+        if ( !findOneProducts )
+            throw NotFound( "Produto não encontrado" );
         try
         {
-
-            const { ean } = req.params as { ean: string };
-            const findOneProducts = await prisma.products.findFirst( {
-                where: {
-                    ean: ean,
-                },
-            } );
-
-            if ( !findOneProducts )
-                throw NotFound( "Produto não encontrado" );
-
             const product = JSON.parse(
                 JSON.stringify( findOneProducts, ( key, value ) =>
                     typeof value === 'bigint' ? value.toString() : value
@@ -213,21 +213,22 @@ export const Products = {
         {
             throw GenericError()
         }
+
     },
     FindByTagId: async ( req: Request, res: Response ): Promise<any> =>
     {
+        const { tagId } = req.params;
+
+        const findOneProducts = await prisma.products.findFirst( {
+            where: {
+                tagId: tagId,
+            },
+        } );
+
+        if ( !findOneProducts )
+            throw NotFound( "Produto não encontrado" );
         try
         {
-            const { tagId } = req.params;
-
-            const findOneProducts = await prisma.products.findFirst( {
-                where: {
-                    tagId: tagId,
-                },
-            } );
-
-            if ( !findOneProducts )
-                throw NotFound( "Produto não encontrado" );
             const product = JSON.parse(
                 JSON.stringify( findOneProducts, ( key, value ) =>
                     typeof value === 'bigint' ? value.toString() : value
@@ -242,18 +243,19 @@ export const Products = {
     },
     FindByDatamatrixId: async ( req: Request, res: Response ): Promise<any> =>
     {
+
+        const { datamatrixId } = req.params;
+
+        const findOneProducts = await prisma.products.findFirst( {
+            where: {
+                datamatrixId: datamatrixId,
+            },
+        } );
+
+        if ( !findOneProducts )
+            throw NotFound( "Produto não encontrado" );
         try
         {
-            const { datamatrixId } = req.params;
-
-            const findOneProducts = await prisma.products.findFirst( {
-                where: {
-                    datamatrixId: datamatrixId,
-                },
-            } );
-
-            if ( !findOneProducts )
-                throw NotFound( "Produto não encontrado" );
             const product = JSON.parse(
                 JSON.stringify( findOneProducts, ( key, value ) =>
                     typeof value === 'bigint' ? value.toString() : value
@@ -262,18 +264,19 @@ export const Products = {
             return res.status( 200 ).json( product );
         } catch ( error )
         {
-            console.error( "Erro ao buscar o produto:", error );
+
             throw GenericError()
         }
     },
     FindAll: async ( req: Request, res: Response ): Promise<any> =>
     {
+
+        let findAllProducts = await prisma.products.findMany();
+
+        if ( findAllProducts.length === 0 )
+            throw NotFound( "Nenhum Produto encontrado" )
         try
         {
-            let findAllProducts = await prisma.products.findMany();
-
-            if ( findAllProducts.length === 0 )
-                throw NotFound( "Nenhum Produto encontrado" )
             findAllProducts = findAllProducts.map( ( findOneProducts ) =>
             {
                 return JSON.parse(
@@ -285,7 +288,6 @@ export const Products = {
             return res.status( 200 ).json( findAllProducts );
         } catch ( error )
         {
-            console.error( "Erro ao buscar o produto:", error );
             throw GenericError()
         }
     },
