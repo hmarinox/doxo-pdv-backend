@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Sales` ADD COLUMN `isSync` BOOLEAN NOT NULL DEFAULT false;
