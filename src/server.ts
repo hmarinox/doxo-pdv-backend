@@ -4,11 +4,15 @@ import cors, { CorsOptions } from 'cors'
 import swaggerDocs from './docs/swagger_output.json'
 import swaggerUi from 'swagger-ui-express'
 import routes from './routes'
-import { Cron } from './services/OmieDatabaseSync'
+
 import { Errors } from './middleware/errors'
 import getAllProductsOmieAndSyncWithDB from './integrations/erp/omie/databaseSync'
+import env from './zod-validation-env'
+import { CronShedule } from './services/shedule'
 
-const PORT = process.env.PORT
+
+const PORT = env.PORT
+const operationLocal = env.OPERATION
 function server() 
 {
     let app = express()
@@ -25,8 +29,11 @@ function server()
     app.use( cors( options ) )
 
     //getAllProductsOmieAndSyncWithDB()
-    Cron.scheduleSync()
-
+    if ( operationLocal === 'local' )
+    {
+        CronShedule.syncGetProductsOmie()
+        CronShedule.syncPushSales()
+    }
 
     app.use( express.json( { limit: '3mb' } ) )
 

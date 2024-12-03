@@ -88,9 +88,28 @@ export const Stores = {
         {
             throw ZodErrorMessage( error )
         }
+        let storeCreated: {
+            number: string;
+            id: number;
+            storeUUID: string | null;
+            name: string;
+            companyId: number;
+            street: string;
+            neighborhood: string;
+            city: string;
+            state: string;
+            country: string;
+            zipCode: string;
+            complement: string | null;
+            isSync: boolean;
+            emitModel: number;
+            ufCode: string;
+            cityCode: string;
+        }
         try
         {
-            await prisma.stores.upsert( {
+
+            storeCreated = await prisma.stores.upsert( {
                 where: { id: store.id },
                 update: store,
                 create: {
@@ -114,7 +133,7 @@ export const Stores = {
         {
             throw RegistrationCompletedError( "Erro ao criar loja" )
         }
-        return res.status( 201 ).json( { message: store.id ? "Loja atualizada com sucesso!" : "Loja criada com sucesso!" } );
+        return res.status( 201 ).json( { message: store.id ? "Loja atualizada com sucesso!" : "Loja criada com sucesso!", store: storeCreated } );
     },
     FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
@@ -197,12 +216,14 @@ export const Stores = {
             name: string;
             companyId: number;
             street: string;
+            storeUUID: string | null;
+            isSync: boolean;
             neighborhood: string;
             city: string;
             state: string;
             country: string;
             zipCode: string;
-            complement: string;
+            complement: string | null;
             emitModel: number;
             ufCode: string;
             cityCode: string;
@@ -229,12 +250,14 @@ export const Stores = {
             name: string;
             companyId: number;
             street: string;
+            storeUUID: string | null;
+            isSync: boolean;
             neighborhood: string;
             city: string;
             state: string;
             country: string;
             zipCode: string;
-            complement: string;
+            complement: string | null;
             emitModel: number;
             ufCode: string;
             cityCode: string;

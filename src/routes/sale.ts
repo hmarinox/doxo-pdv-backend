@@ -2,6 +2,7 @@ import express from 'express'
 import { Sale } from '../controllers/sale';
 let saleRoutes = express.Router()
 saleRoutes.post( "/", Sale.Create );
+saleRoutes.post( "/remote-sync", Sale.SyncCreate );
 saleRoutes.get( "/:id", Sale.FindById );
 saleRoutes.get( "/tax-receipt/:pdvId", Sale.FindSaleInfo );
 saleRoutes.get( "/", Sale.FindAll );

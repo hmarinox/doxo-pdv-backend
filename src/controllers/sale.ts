@@ -51,11 +51,25 @@ const createSaleSchema = z.object( {
     taxReceiptNumber: z.number(),
     taxReceiptSerie: z.number(),
     taxReceiptKey: z.string(),
-    MigrateResult: z.string()
+    MigrateResult: z.string(),
+
 
 } )
 
-type createPdvType = z.infer<typeof createSaleSchema>
+const syncCreateSaleSchema = z.object( {
+    products: z.array( createProductSchema ),
+    pdvId: z.number(),
+    taxReceiptEmitDate: z.string().datetime( { offset: true } ),
+    taxReceiptNumber: z.number(),
+    taxReceiptSerie: z.number(),
+    taxReceiptKey: z.string(),
+    MigrateResult: z.string(),
+    saleUUID: z.string(),
+
+} )
+
+type createSaleType = z.infer<typeof createSaleSchema>
+type syncCreateSaleType = z.infer<typeof syncCreateSaleSchema>
 export const Sale = {
     Create: async ( req: Request, res: Response ): Promise<any> =>
     {
@@ -105,7 +119,7 @@ export const Sale = {
                   }
               }
           */
-        let sale: createPdvType;
+        let sale: createSaleType;
         try
         {
             sale = createSaleSchema.parse( req.body )
@@ -122,8 +136,6 @@ export const Sale = {
         {
             const saleCreated = await prisma.sales.create( {
                 data: {
-
-                    saleId,
                     pdvId: sale.pdvId,
                     SalesProducts: {
                         create: {
@@ -160,6 +172,114 @@ export const Sale = {
         }
         return res.status( 201 ).json( { message: "venda registrada com sucesso!" } );
     },
+    SyncCreate: async ( req: Request, res: Response ): Promise<any> =>
+    {
+        /*
+               #swagger.responses[201] = { 
+                    description: "Created",
+                      content: {
+                        "application/json": {
+                            example:{
+                                message:  "Pdv registrado com sucesso!"
+                            }
+                        }
+                    }
+               }
+               #swagger.responses[409] = { 
+                    description: "Registration Error",
+                   content: {
+                        "application/json": {
+                            example:{
+                                message: "Erro ao registrar pdv"
+                            }
+                        }
+                    }
+               }
+               #swagger.responses[500] = { 
+                    description:  "Schema validation error",
+                    content: {
+                        "application/json": {
+                            example:{
+                                message: "string"
+                            }
+                        }
+                    }
+               }
+                #swagger.requestBody = {
+                  required: true,
+                  content: {
+                      "application/json": {
+                          example: {
+                            name: "",
+                            storeId: 0,
+                            name: "string",
+                            macAddress: "string",
+                            taxReceiptSerie: 260
+                          }
+                      }
+                  }
+              }
+          */
+        let sale: syncCreateSaleType;
+        try
+        {
+            sale = syncCreateSaleSchema.parse( req.body )
+        } catch ( error: any )
+        {
+            throw ZodErrorMessage( error )
+        }
+        if ( sale.products.length == 0 )
+            throw RegistrationCompletedError( "Necessário ter produtos!" )
+
+
+        let saleCreated: {
+            pdvId: number;
+            id: number;
+            saleUUID: string;
+            isSync: boolean;
+        }
+        try
+        {
+            saleCreated = await prisma.sales.create( {
+                data: {
+                    isSync: true,
+                    saleUUID: sale.saleUUID,
+                    pdvId: sale.pdvId,
+                    SalesProducts: {
+                        create: {
+                            createdAt: sale.taxReceiptEmitDate,
+                            products: sale.products
+                        }
+                    },
+                    TaxReceipt: {
+                        create: {
+                            taxReceiptEmitDate: sale.taxReceiptEmitDate,
+                            taxReceiptNumber: sale.taxReceiptNumber,
+                            taxReceiptSerie: sale.taxReceiptSerie,
+                            taxReceiptKey: sale.taxReceiptKey,
+                            TaxReceiptXML: {
+                                create: {
+                                    MigrateResult: sale.MigrateResult,
+                                }
+                            }
+                        }
+                    }
+
+
+
+                }
+            } )
+            if ( !saleCreated )
+                throw RegistrationCompletedError( "Erro ao registrar venda" )
+
+
+
+        } catch ( error )
+        {
+            throw RegistrationCompletedError( "Erro ao criar pdv" )
+        }
+        return res.status( 201 ).json( { saleUUID: saleCreated.saleUUID } );
+    },
     FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
         try
@@ -190,14 +310,15 @@ export const Sale = {
         let findAllSales: ( {
             SalesProducts: {
                 saleId: number;
+                createdAt: Date;
                 products: JsonValue;
                 id: number;
-                createdAt: Date;
-            }[];
+            } | null;
         } & {
-            saleId: string;
             pdvId: number;
             id: number;
+            saleUUID: string;
+            isSync: boolean;
         } )[]
 
         try

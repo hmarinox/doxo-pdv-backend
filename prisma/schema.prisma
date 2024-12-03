@@ -51,15 +51,16 @@ model Products {
 }
 
 model Companies {
-  id    Int      @id @default(autoincrement())
-  name  String
-  cnpj  String   @unique
-  ie    String
-  Store Stores[]
+  id     Int      @id @default(autoincrement())
+  name   String
+  cnpj   String   @unique
+  ie     String
+  isSync Boolean  @default(false)
+  Store  Stores[]
 }
 
 model Stores {
-  id           Int     @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   name         String
   companyId    Int
   street       String
@@ -67,22 +68,25 @@ model Stores {
   neighborhood String
   city         String
   state        String
-  country      String  @default("Brasil")
+  country      String      @default("Brasil")
+  storeUUID    String?     @unique @default(uuid())
   zipCode      String
   complement   String?
   emitModel    Int
   ufCode       String
   cityCode     String
-
-  Company   Companies   @relation(fields: [companyId], references: [id])
-  Pdv       Pdv[]
-  Employees Employees[]
+  isSync       Boolean     @default(false)
+  Company      Companies   @relation(fields: [companyId], references: [id])
+  Pdv          Pdv[]
+  Employees    Employees[]
 }
 
 model Pdv {
   id              Int     @id @default(autoincrement())
+  pdvUUID         String  @unique @default(uuid())
   storeId         Int
   name            String
+  isSync          Boolean @default(false)
   macAddress      String  @unique
   taxReceiptSerie Int     @unique
   Store           Stores  @relation(fields: [storeId], references: [id])
@@ -90,17 +94,18 @@ model Pdv {
 }
 
 model Sales {
-  id            Int             @id @default(autoincrement())
-  saleId        String          @unique
+  id            Int            @id @default(autoincrement())
+  saleUUID      String         @unique @default(uuid())
   pdvId         Int
-  Pdv           Pdv             @relation(fields: [pdvId], references: [id])
-  SalesProducts SalesProducts[]
-  TaxReceipt    TaxReceipt[]
+  isSync        Boolean        @default(false)
+  Pdv           Pdv            @relation(fields: [pdvId], references: [id])
+  SalesProducts SalesProducts?
+  TaxReceipt    TaxReceipt?
 }
 
 model SalesProducts {
   id        Int      @id @default(autoincrement())
-  saleId    Int
+  saleId    Int      @unique
   products  Json
   createdAt DateTime
   Sales     Sales    @relation(fields: [saleId], references: [id])
@@ -108,7 +113,7 @@ model SalesProducts {
 
 model TaxReceipt {
   id                 Int            @id @default(autoincrement())
-  saleId             Int
+  saleId             Int            @unique
   taxReceiptEmitDate DateTime
   taxReceiptNumber   Int
   taxReceiptSerie    Int

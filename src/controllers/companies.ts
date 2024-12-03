@@ -69,9 +69,16 @@ export const Companies = {
             throw ZodErrorMessage( error )
         }
         console.log( "compnay = ", company )
+        let companyCrated: {
+            id: number;
+            name: string;
+            cnpj: string;
+            ie: string;
+            isSync: boolean;
+        }
         try
         {
-            await prisma.companies.upsert( {
+            companyCrated = await prisma.companies.upsert( {
                 where: { id: company.id },
                 update: company,
                 create: {
@@ -86,7 +93,7 @@ export const Companies = {
             console.log( error )
             throw RegistrationCompletedError( "Erro ao criar empresa" )
         }
-        return res.status( 201 ).json( { message: company.id ? "Empresa atualizada com sucesso!" : "Empresa criada com sucesso!" } );
+        return res.status( 201 ).json( { message: company.id ? "Empresa atualizada com sucesso!" : "Empresa criada com sucesso!", company: companyCrated } );
     },
     FindById: async ( req: Request, res: Response ): Promise<any> =>
     {
