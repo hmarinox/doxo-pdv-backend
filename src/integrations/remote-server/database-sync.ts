@@ -57,8 +57,7 @@ async function pushSales()
     } )
     if ( stores.length !== 0 )
     {
-        console.log( "sync stores" )
-        console.log( stores )
+
         const storesQueue = stores.map( store => fetch( `${ remoteUrl }/remote-sync/stores`, {
             method: "POST",
             headers: {
@@ -84,7 +83,7 @@ async function pushSales()
             } )
         } );
     }
-    const pdv = await prisma.pdv.findMany( {
+    const pdvs = await prisma.pdv.findMany( {
         where: { isSync: false },
         select: {
             id: true,
@@ -101,9 +100,10 @@ async function pushSales()
             }
         }
     } )
-    if ( pdv.length !== 0 )
+    if ( pdvs.length !== 0 )
     {
-        const pdvQueue = companies.map( pdv => fetch( `${ remoteUrl }/remote-sync/pdv`, {
+
+        const pdvQueue = pdvs.map( pdv => fetch( `${ remoteUrl }/remote-sync/pdv`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -113,9 +113,11 @@ async function pushSales()
         const result = await Promise.all( pdvQueue )
         result.forEach( async ( res ) =>
         {
+            const data = await res.json();
+            console.log( "data= ", data )
             if ( !res.ok )
                 return
-            const data = await res.json();
+
             await prisma.pdv.update( {
                 where: {
                     macAddress: data.pdv.macAddress
@@ -133,7 +135,7 @@ async function pushSales()
         },
         select: {
             saleUUID: true,
-            Pdv: true,
+            Pdv: { select: { pdvUUID: true } },
             SalesProducts: {
                 select: {
                     products: true,
@@ -157,7 +159,8 @@ async function pushSales()
     } )
     if ( salesNotSync.length === 0 )
         return;
-    const queue = salesNotSync.map( ( sale ) => fetch( `${ remoteUrl }/remote-sync`, {
+    console.log( "salesNotSync = ", salesNotSync )
+    const queue = salesNotSync.map( ( sale ) => fetch( `${ remoteUrl }/remote-sync/sale`, {
         method: "POST",
         headers: {
             "Content-type": "application/json"
@@ -169,6 +172,7 @@ async function pushSales()
     const updateSaleQueue = result.map( async ( res ) => 
     {
         const data = await res.json();
+        console.log( "data = ", data )
         if ( res.status === 201 )
             return prisma.sales.update( {
                 where: {
