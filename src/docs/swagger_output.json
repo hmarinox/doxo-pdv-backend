@@ -692,6 +692,214 @@
           }
         }
       }
+    },
+    "/api/v1/remote-sync/companies": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Empresa criada com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao criar empresa"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "cnpj": "string",
+                "ie": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/remote-sync/stores": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Loja criada com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao criar loja"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "",
+                "companyId": 0,
+                "street": "",
+                "number": "",
+                "neighborhood": "",
+                "city": "",
+                "state": "",
+                "country": "",
+                "zipCode": "",
+                "complement": "",
+                "emitModel": 0,
+                "ufCode": "string",
+                "cityCode": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/remote-sync/pdv": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pdv registrado com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao registrar pdv"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "storeId": 0,
+                "macAddress": "string",
+                "taxReceiptSerie": 260
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/remote-sync/sale": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pdv registrado com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao registrar pdv"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "storeId": 0,
+                "macAddress": "string",
+                "taxReceiptSerie": 260
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

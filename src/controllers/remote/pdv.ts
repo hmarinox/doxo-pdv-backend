@@ -81,23 +81,30 @@ export const RemotePdv = {
         const store = await prisma.stores.findUnique( { where: { storeUUID: pdv.Store.storeUUID } } )
         if ( !store )
             throw NotFound( "store not found" )
-
+        let pdvCreated: {
+            id: number;
+            name: string;
+            isSync: boolean;
+            pdvUUID: string;
+            storeId: number;
+            macAddress: string;
+            taxReceiptSerie: number;
+        }
         try
         {
-            await prisma.pdv.upsert( {
+            pdvCreated = await prisma.pdv.upsert( {
 
                 where: { pdvUUID: pdv.pdvUUID },
                 create: {
                     name: pdv.name,
                     pdvUUID: pdv.pdvUUID,
                     macAddress: pdv.macAddress,
-                    storeId: pdv.storeId,
+                    storeId: store.id,
                     taxReceiptSerie: pdv.taxReceiptSerie
                 },
                 update: {
                     name: pdv.name,
                     macAddress: pdv.macAddress,
-                    storeId: pdv.storeId,
                     taxReceiptSerie: pdv.taxReceiptSerie
                 }
             } );
@@ -106,7 +113,7 @@ export const RemotePdv = {
         {
             throw RegistrationCompletedError( "Erro ao criar pdv" )
         }
-        return res.status( 201 ).json( { message: pdv.id ? "Pdv atualizado com sucessos!" : "Pdv registrado com sucesso!" } );
+        return res.status( 201 ).json( { pdv: pdvCreated } );
     },
 
 
