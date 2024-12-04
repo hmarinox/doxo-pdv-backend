@@ -9,7 +9,7 @@ const companySchema = z.object( {
     name: z.string(),
     cnpj: z.string(),
     ie: z.string(),
-    isSync: z.string(),
+    isSync: z.boolean(),
     companyUUID: z.string(),
 
 } )
@@ -17,7 +17,6 @@ const createStoreSchema = z.object( {
     id: z.number().optional(),
     storeUUID: z.string(),
     name: z.string(),
-    companyUUID: z.string(),
     street: z.string(),
     number: z.string(),
     neighborhood: z.string(),
@@ -25,7 +24,7 @@ const createStoreSchema = z.object( {
     state: z.string(),
     country: z.string().optional(),
     zipCode: z.string(),
-    complement: z.string().optional(),
+    complement: z.string().nullable().optional(),
     emitModel: z.number(),
     ufCode: z.string(),
     cityCode: z.string(),
@@ -117,11 +116,11 @@ export const RemoteStores = {
             ufCode: string;
             cityCode: string;
         }
+        const company = await prisma.companies.findUnique( { where: { companyUUID: store.Company.companyUUID } } )
+        if ( !company )
+            throw NotFound( "company not found!" )
         try
         {
-            const company = await prisma.companies.findUnique( { where: { companyUUID: store.companyUUID } } )
-            if ( !company )
-                throw NotFound( "company not found!" )
 
             storeCreated = await prisma.stores.upsert( {
                 where: { storeUUID: store.storeUUID },

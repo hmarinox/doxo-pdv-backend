@@ -1,10 +1,11 @@
 import { Request, Response } from 'express'
 import prisma from '../../database/prisma-client'
 import { z } from 'zod';
-import dayjs from 'dayjs'
+
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../../helpers/errors';
-import { v7 as uuidv7 } from 'uuid';
-import { JsonValue } from '@prisma/client/runtime/library';
+import { Products } from '../products';
+
+
 const createProductSchema = z.object( {
     saleId: z.number().optional(),
     marca: z.string(),
@@ -43,14 +44,26 @@ const createProductSchema = z.object( {
 } )
 
 const syncCreateSaleSchema = z.object( {
-    products: z.array( createProductSchema ),
-    pdvId: z.number(),
-    taxReceiptEmitDate: z.string().datetime( { offset: true } ),
-    taxReceiptNumber: z.number(),
-    taxReceiptSerie: z.number(),
-    taxReceiptKey: z.string(),
-    MigrateResult: z.string(),
     saleUUID: z.string(),
+    SalesProducts: z.object( {
+        products: z.array( createProductSchema ),
+        createdAt: z.string().datetime()
+    } ),
+    Pdv: z.object(
+        {
+            pdvUUID: z.string(),
+
+        }
+    ),
+    TaxReceipt: z.object( {
+        taxReceiptEmitDate: z.string().datetime( { offset: true } ),
+        taxReceiptNumber: z.number(),
+        taxReceiptSerie: z.number(),
+        taxReceiptKey: z.string(),
+        TaxReceiptXML: z.object( {
+            MigrateResult: z.string(),
+        } )
+    } ),
 
 } )
 
@@ -114,7 +127,7 @@ export const RemoteSale = {
         {
             throw ZodErrorMessage( error )
         }
-        if ( sale.products.length == 0 )
+        if ( sale.SalesProducts.products.length == 0 )
             throw RegistrationCompletedError( "Necessário ter produtos!" )
 
 
@@ -124,28 +137,36 @@ export const RemoteSale = {
             saleUUID: string;
             isSync: boolean;
         }
+        const pdv = await prisma.pdv.findUnique( {
+            where: {
+                pdvUUID: sale.Pdv.pdvUUID
+            }
+        } )
+        if ( !pdv )
+            throw NotFound( "Pdv not found" )
         try
         {
             saleCreated = await prisma.sales.create( {
                 data: {
                     isSync: true,
                     saleUUID: sale.saleUUID,
-                    pdvId: sale.pdvId,
+                    pdvId: pdv.id,
+
                     SalesProducts: {
                         create: {
-                            createdAt: sale.taxReceiptEmitDate,
-                            products: sale.products
+                            createdAt: sale.TaxReceipt.taxReceiptEmitDate,
+                            products: sale.SalesProducts.products
                         }
                     },
                     TaxReceipt: {
                         create: {
-                            taxReceiptEmitDate: sale.taxReceiptEmitDate,
-                            taxReceiptNumber: sale.taxReceiptNumber,
-                            taxReceiptSerie: sale.taxReceiptSerie,
-                            taxReceiptKey: sale.taxReceiptKey,
+                            taxReceiptEmitDate: sale.TaxReceipt.taxReceiptEmitDate,
+                            taxReceiptNumber: sale.TaxReceipt.taxReceiptNumber,
+                            taxReceiptSerie: sale.TaxReceipt.taxReceiptSerie,
+                            taxReceiptKey: sale.TaxReceipt.taxReceiptKey,
                             TaxReceiptXML: {
                                 create: {
-                                    MigrateResult: sale.MigrateResult,
+                                    MigrateResult: sale.TaxReceipt.TaxReceiptXML.MigrateResult,
                                 }
                             }
                         }
@@ -157,9 +178,6 @@ export const RemoteSale = {
             } )
             if ( !saleCreated )
                 throw RegistrationCompletedError( "Erro ao registrar venda" )
-
-
-
         } catch ( error )
         {
             throw RegistrationCompletedError( "Erro ao criar pdv" )
