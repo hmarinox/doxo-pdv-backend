@@ -603,6 +603,56 @@
         }
       }
     },
+    "/api/v1/sale/remote-sync": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pdv registrado com sucesso!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Registration Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro ao registrar pdv"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Schema validation error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "string",
+                "storeId": 0,
+                "macAddress": "string",
+                "taxReceiptSerie": 260
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/sale/{id}": {
       "get": {
         "description": "",

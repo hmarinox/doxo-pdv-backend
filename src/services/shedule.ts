@@ -7,7 +7,7 @@ function syncGetProductsOmie()
 }
 function syncPushSales()
 {
-    cron.schedule( '1 * * * *', RemoteServerSync.pushSales );
+    cron.schedule( '*/30 * * * * *', RemoteServerSync.pushSales );
     console.log( "   cron.schedule( '1 * * * *', RemoteServerSync.pushSales );" )
 }
 

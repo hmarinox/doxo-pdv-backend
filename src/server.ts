@@ -9,6 +9,7 @@ import { Errors } from './middleware/errors'
 import getAllProductsOmieAndSyncWithDB from './integrations/erp/omie/databaseSync'
 import env from './zod-validation-env'
 import { CronShedule } from './services/shedule'
+import { RemoteServerSync } from './integrations/remote-server/database-sync'
 
 
 const PORT = env.PORT
@@ -31,8 +32,9 @@ function server()
     //getAllProductsOmieAndSyncWithDB()
     if ( operationLocal === 'local' )
     {
-        CronShedule.syncGetProductsOmie()
-        CronShedule.syncPushSales()
+        RemoteServerSync.pushSales()
+        // CronShedule.syncGetProductsOmie()
+        // CronShedule.syncPushSales()
     }
 
     app.use( express.json( { limit: '3mb' } ) )

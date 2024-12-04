@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import prisma from '../database/prisma-client'
-import { z } from 'zod';
-import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
+import { z } from "zod";
+import { RegistrationCompletedError, ZodErrorMessage } from "../../helpers/errors";
+import prisma from "../../database/prisma-client";
 
 
 const createCompanySchema = z.object( {
@@ -9,10 +9,11 @@ const createCompanySchema = z.object( {
     name: z.string(),
     cnpj: z.string(),
     ie: z.string(),
+    companyUUID: z.string()
 } )
 
 type createCompanyType = z.infer<typeof createCompanySchema>
-export const Companies = {
+export const RemoteCompany = {
     CreateOrUpdate: async ( req: Request, res: Response ): Promise<any> =>
     {
         /*
@@ -73,15 +74,17 @@ export const Companies = {
             name: string;
             cnpj: string;
             ie: string;
+            companyUUID: string | null;
             isSync: boolean;
         }
         try
         {
             companyCrated = await prisma.companies.upsert( {
-                where: { id: company.id },
+                where: { companyUUID: company.companyUUID },
                 update: company,
                 create: {
                     name: company.name,
+                    companyUUID: company.companyUUID,
                     cnpj: company.cnpj.replace( /[^a-zA-Z0-9]/g, "" ),
                     ie: company.ie
                 }
@@ -93,75 +96,5 @@ export const Companies = {
             throw RegistrationCompletedError( "Erro ao criar empresa" )
         }
         return res.status( 201 ).json( { message: company.id ? "Empresa atualizada com sucesso!" : "Empresa criada com sucesso!", company: companyCrated } );
-    },
-    FindById: async ( req: Request, res: Response ): Promise<any> =>
-    {
-        try
-        {
-            const { id } = req.params as { id: string }
-
-            const company = await prisma.companies.findUniqueOrThrow( {
-                where: {
-                    id: parseInt( id ),
-                },
-            } );
-
-            if ( !company )
-                throw NotFound( "empresa não encontrada!" )
-
-            return res.status( 200 ).json( company )
-        } catch ( error )
-        {
-            throw GenericError( "Erro ao buscar empresa" )
-        }
-    },
-    FindAll: async ( req: Request, res: Response ): Promise<any> =>
-    {
-
-        let findAllCompanies: {
-            name: string;
-            cnpj: string;
-            ie: string;
-            id: number;
-        }[]
-        try
-        {
-            findAllCompanies = await prisma.companies.findMany();
-
-            if ( !findAllCompanies )
-            {
-                throw NotFound( "Empresas não encontradas" )
-            }
-        } catch ( error )
-        {
-            throw GenericError( "Erro ao buscar empresas" )
-        }
-        return res.status( 200 ).json( findAllCompanies );
-    },
-    Delete: async ( req: Request, res: Response ): Promise<any> =>
-    {
-        let deleteCompany: {
-            name: string;
-            cnpj: string;
-            ie: string;
-            id: number;
-        }
-        try
-        {
-            const { id } = req.params as { id: string };
-            deleteCompany = await prisma.companies.delete( {
-                where: {
-                    id: parseInt( id ),
-                },
-            } );
-
-            if ( !deleteCompany )
-                throw NotFound( "Empresa não encontrada!" )
-
-        } catch ( error )
-        {
-            throw GenericError( "Erro ao deletar empresa" )
-        }
-        return res.status( 200 ).json( { message: "Empresa deletada com sucesso!" } );
     }
 }

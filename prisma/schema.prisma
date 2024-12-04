@@ -51,12 +51,13 @@ model Products {
 }
 
 model Companies {
-  id     Int      @id @default(autoincrement())
-  name   String
-  cnpj   String   @unique
-  ie     String
-  isSync Boolean  @default(false)
-  Store  Stores[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  cnpj        String   @unique
+  ie          String
+  isSync      Boolean  @default(false)
+  companyUUID String?  @unique @default(uuid())
+  Store       Stores[]
 }
 
 model Stores {

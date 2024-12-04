@@ -5,19 +5,27 @@ const remoteUrl = env.REMOTE_API_URL
 
 async function pushSales()
 {
+    console.log( "sync" )
     const companies = await prisma.companies.findMany( { where: { isSync: false } } )
+    console.log( companies )
+
     if ( companies.length !== 0 )
     {
-        const companiesQueue = companies.map( company => fetch( `${ remoteUrl }/companies`, {
+        console.log( "sync company" )
+        const companiesQueue = companies.map( company => fetch( `${ remoteUrl }/remote-sync/companies`, {
             method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
             body: JSON.stringify( company )
         } ) )
         const result = await Promise.all( companiesQueue )
         result.forEach( async ( res ) =>
         {
+            const data = await res.json();
+            console.log( "companies res = ", data )
             if ( !res.ok )
                 return
-            const data = await res.json();
             await prisma.companies.update( {
                 where: {
                     cnpj: data.company.cnpj
@@ -28,19 +36,44 @@ async function pushSales()
             } )
         } );
     }
-    const stores = await prisma.stores.findMany( { where: { isSync: false } } )
+    const stores = await prisma.stores.findMany( {
+        where: { isSync: false }, select: {
+            id: true,
+            storeUUID: true,
+            name: true,
+            street: true,
+            emitModel: true,
+            neighborhood: true,
+            number: true,
+            country: true,
+            state: true,
+            city: true,
+            zipCode: true,
+            complement: true,
+            ufCode: true,
+            cityCode: true,
+            Company: true
+        }
+    } )
     if ( stores.length !== 0 )
     {
-        const storesQueue = companies.map( store => fetch( `${ remoteUrl }/stores`, {
+        console.log( "sync stores" )
+        console.log( stores )
+        const storesQueue = stores.map( store => fetch( `${ remoteUrl }/remote-sync/stores`, {
             method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
             body: JSON.stringify( store )
         } ) )
+        console.log( storesQueue )
         const result = await Promise.all( storesQueue )
         result.forEach( async ( res ) =>
         {
+            const data = await res.json();
+            console.log( "data= ", data )
             if ( !res.ok )
                 return
-            const data = await res.json();
             await prisma.stores.update( {
                 where: {
                     storeUUID: data.store.storeUUID
@@ -51,11 +84,30 @@ async function pushSales()
             } )
         } );
     }
-    const pdv = await prisma.pdv.findMany( { where: { isSync: false } } )
+    const pdv = await prisma.pdv.findMany( {
+        where: { isSync: false },
+        select: {
+            id: true,
+            name: true,
+            isSync: true,
+            pdvUUID: true,
+            storeId: true,
+            macAddress: true,
+            taxReceiptSerie: true,
+            Store: {
+                select: {
+                    storeUUID: true
+                }
+            }
+        }
+    } )
     if ( pdv.length !== 0 )
     {
-        const pdvQueue = companies.map( pdv => fetch( `${ remoteUrl }/stores`, {
+        const pdvQueue = companies.map( pdv => fetch( `${ remoteUrl }/remote-sync/pdv`, {
             method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
             body: JSON.stringify( pdv )
         } ) )
         const result = await Promise.all( pdvQueue )
@@ -105,8 +157,11 @@ async function pushSales()
     } )
     if ( salesNotSync.length === 0 )
         return;
-    const queue = salesNotSync.map( ( sale ) => fetch( `${ remoteUrl }/sale/remote-sync`, {
+    const queue = salesNotSync.map( ( sale ) => fetch( `${ remoteUrl }/remote-sync`, {
         method: "POST",
+        headers: {
+            "Content-type": "application/json"
+        },
         body: JSON.stringify( sale )
     } ) )
     const result = await Promise.all( queue )
