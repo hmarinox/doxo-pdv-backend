@@ -1,9 +1,9 @@
 import consumeOmie from ".";
 import prisma from "../../../database/prisma-client";
-
+import dayjs from "dayjs";
 const getAllProductsOmieAndSyncWithDB = async () =>
 {
-
+    console.log( "getAllProductsOmieAndSyncWithDB  data = ", dayjs().format( "DD/MM/YY - HH:mm:ss" ) )
     try
     {
         const callExample = "ListarProdutos";

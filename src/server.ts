@@ -19,7 +19,7 @@ function server()
     let app = express()
 
     const options: CorsOptions = {
-        origin: ['http://localhost:3000'],
+        origin: ['http://localhost:3000', 'app://.'],
         //origin: [`*`],
         methods: "GET,PUT,POST,DELETE",
         preflightContinue: false,
@@ -32,9 +32,9 @@ function server()
     //getAllProductsOmieAndSyncWithDB()
     if ( operationLocal === 'local' )
     {
-        RemoteServerSync.pushSales()
-        // CronShedule.syncGetProductsOmie()
-        // CronShedule.syncPushSales()
+
+        CronShedule.syncGetProductsOmie()
+        CronShedule.syncPushSales()
     }
 
     app.use( express.json( { limit: '3mb' } ) )

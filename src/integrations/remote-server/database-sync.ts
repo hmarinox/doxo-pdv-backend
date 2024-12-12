@@ -2,12 +2,11 @@ import { promise } from "zod";
 import prisma from "../../database/prisma-client"
 import env from "../../zod-validation-env";
 const remoteUrl = env.REMOTE_API_URL
-
+import dayjs = require( "dayjs" );
 async function pushSales()
 {
-    console.log( "sync" )
+    console.log( "pushSales  data = ", dayjs().format( "DD/MM/YY - HH:mm:ss" ) )
     const companies = await prisma.companies.findMany( { where: { isSync: false } } )
-    console.log( companies )
 
     if ( companies.length !== 0 )
     {
@@ -185,7 +184,7 @@ async function pushSales()
     } )
 
     await Promise.all( updateSaleQueue )
-
+    console.log( "success sync" )
 }
 
 
