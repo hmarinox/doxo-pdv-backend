@@ -10,6 +10,18 @@ const createCompanySchema = z.object( {
     cnpj: z.string(),
     ie: z.string(),
 } )
+const createSettingsCompanySchema = z.object( {
+    id: z.number().optional(),
+    companyId: z.number(),
+    migrateAccessKey: z.string(),
+    migratePartnerKey: z.string(),
+    clisitefRegisterToken: z.string(),
+    clisitefPort: z.string(),
+    clisitefDefaultMessage: z.string(),
+    clisitefApprovalEnviroment: z.string(),
+    clisitefEnabledTransactions: z.string(),
+} )
+type createSettingsCompanyType = z.infer<typeof createSettingsCompanySchema>
 
 type createCompanyType = z.infer<typeof createCompanySchema>
 export const Companies = {
@@ -163,5 +175,58 @@ export const Companies = {
             throw GenericError( "Erro ao deletar empresa" )
         }
         return res.status( 200 ).json( { message: "Empresa deletada com sucesso!" } );
+    },
+    CreateSettings: async ( req: Request, res: Response ): Promise<any> =>
+    {
+
+        let settingsCreate: createSettingsCompanyType;
+        try
+        {
+            settingsCreate = createSettingsCompanySchema.parse( req.body )
+        } catch ( error: any ) 
+        {
+            throw ZodErrorMessage( error )
+        }
+
+        const settings = await prisma.settings.upsert( {
+            where: { id: settingsCreate.id },
+            update: settingsCreate,
+            create: {
+                migrateAccessKey: settingsCreate.migrateAccessKey,
+                migratePartnerKey: settingsCreate.migratePartnerKey,
+                clisitefRegisterToken: settingsCreate.clisitefRegisterToken,
+                clisitefPort: settingsCreate.clisitefPort,
+                clisitefDefaultMessage: settingsCreate.clisitefDefaultMessage,
+                clisitefApprovalEnviroment: settingsCreate.clisitefApprovalEnviroment,
+                clisitefEnabledTransactions: settingsCreate.clisitefEnabledTransactions,
+                companyId: settingsCreate.companyId
+            }
+        } )
+
+
+        return res.status( 201 ).json( {
+            message: settings.id ? "Configurações da empresa atualizada com sucesso!" : "Configurações da empresa  criada com sucesso!"
+        } );
+    },
+    GetSettings: async ( req: Request, res: Response ): Promise<any> =>
+    {
+        try
+        {
+            const { id } = req.params as { id: string }
+
+            const settings = await prisma.settings.findUniqueOrThrow( {
+                where: {
+                    id: parseInt( id ),
+                },
+            } );
+
+            if ( !settings )
+                throw NotFound( "Configurações não encontradas!" )
+
+            return res.status( 200 ).json( settings )
+        } catch ( error )
+        {
+            throw GenericError( "Erro ao buscar Configurações" )
+        }
     }
 }

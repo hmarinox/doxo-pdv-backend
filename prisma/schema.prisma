@@ -51,13 +51,14 @@ model Products {
 }
 
 model Companies {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
-  cnpj        String   @unique
+  cnpj        String     @unique
   ie          String
-  isSync      Boolean  @default(false)
-  companyUUID String?  @unique @default(uuid())
+  isSync      Boolean    @default(false)
+  companyUUID String?    @unique @default(uuid())
   Store       Stores[]
+  Settings    Settings[]
 }
 
 model Stores {
@@ -141,6 +142,19 @@ model Employees {
   registrationCode String
   level            employeeLevel
   Stores           Stores        @relation(fields: [storeId], references: [id])
+}
+
+model Settings {
+  id                          Int       @id @default(autoincrement())
+  migrateAccessKey            String
+  migratePartnerKey           String
+  clisitefRegisterToken       String
+  clisitefPort                String
+  clisitefDefaultMessage      String
+  clisitefApprovalEnviroment  String
+  clisitefEnabledTransactions String
+  companyId                   Int
+  companies                   Companies @relation(fields: [companyId], references: [id])
 }
 
 model Users {
