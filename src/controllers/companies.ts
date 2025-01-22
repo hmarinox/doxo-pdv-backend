@@ -18,8 +18,10 @@ const createSettingsCompanySchema = z.object( {
     clisitefRegisterToken: z.string(),
     clisitefPort: z.string(),
     clisitefDefaultMessage: z.string(),
-    clisitefApprovalEnviroment: z.string(),
     clisitefEnabledTransactions: z.string(),
+    omieAppKey: z.string(),
+    omieAppSecret: z.string(),
+
 } )
 type createSettingsCompanyType = z.infer<typeof createSettingsCompanySchema>
 
@@ -116,6 +118,27 @@ export const Companies = {
                 where: {
                     id: parseInt( id ),
                 },
+                select: {
+                    id: true,
+                    name: true,
+                    cnpj: true,
+                    ie: true,
+                    isSync: true,
+                    companyUUID: true,
+                    Settings: {
+                        select: {
+                            id: true,
+                            migrateAccessKey: true,
+                            migratePartnerKey: true,
+                            omieAppKey: true,
+                            omieAppSecret: true,
+                            clisitefDefaultMessage: true,
+                            clisitefEnabledTransactions: true,
+                            clisitefPort: true,
+                            clisitefRegisterToken: true
+                        }
+                    }
+                }
             } );
 
             if ( !company )
@@ -178,13 +201,14 @@ export const Companies = {
     },
     CreateSettings: async ( req: Request, res: Response ): Promise<any> =>
     {
-
+        console.log( "hjbdjhbjhbd = ", req.body )
         let settingsCreate: createSettingsCompanyType;
         try
         {
             settingsCreate = createSettingsCompanySchema.parse( req.body )
         } catch ( error: any ) 
         {
+            console.log( error )
             throw ZodErrorMessage( error )
         }
 
@@ -197,8 +221,10 @@ export const Companies = {
                 clisitefRegisterToken: settingsCreate.clisitefRegisterToken,
                 clisitefPort: settingsCreate.clisitefPort,
                 clisitefDefaultMessage: settingsCreate.clisitefDefaultMessage,
-                clisitefApprovalEnviroment: settingsCreate.clisitefApprovalEnviroment,
+
                 clisitefEnabledTransactions: settingsCreate.clisitefEnabledTransactions,
+                omieAppKey: settingsCreate.omieAppKey,
+                omieAppSecret: settingsCreate.omieAppSecret,
                 companyId: settingsCreate.companyId
             }
         } )

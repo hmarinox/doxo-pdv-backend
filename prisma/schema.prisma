@@ -149,10 +149,11 @@ model Settings {
   migrateAccessKey            String
   migratePartnerKey           String
   clisitefRegisterToken       String
-  clisitefPort                String
+  clisitefPort                String    @default("AUTO_USB")
   clisitefDefaultMessage      String
-  clisitefApprovalEnviroment  String
   clisitefEnabledTransactions String
+  omieAppKey                  String
+  omieAppSecret               String
   companyId                   Int
   companies                   Companies @relation(fields: [companyId], references: [id])
 }

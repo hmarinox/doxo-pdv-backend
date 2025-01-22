@@ -151,7 +151,8 @@ export const Stores = {
                 }
             console.log( "where clause =", whereClause )
             const store = await prisma.stores.findFirst( {
-                where: whereClause
+                where: whereClause,
+
             } );
             console.log( "store = ", store )
             if ( !store )
