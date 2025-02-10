@@ -84,15 +84,18 @@ model Stores {
 }
 
 model Pdv {
-  id              Int     @id @default(autoincrement())
-  pdvUUID         String  @unique @default(uuid())
-  storeId         Int
-  name            String
-  isSync          Boolean @default(false)
-  macAddress      String  @unique
-  taxReceiptSerie Int     @unique
-  Store           Stores  @relation(fields: [storeId], references: [id])
-  Sales           Sales[]
+  id               Int     @id @default(autoincrement())
+  pdvUUID          String  @unique @default(uuid())
+  storeId          Int
+  name             String
+  isSync           Boolean @default(false)
+  macAddress       String  @unique
+  taxReceiptSerie  Int     @unique
+  migrateEmiNome   String?
+  migrateEmiVersao String?
+  migrateEmiId     String?
+  Store            Stores  @relation(fields: [storeId], references: [id])
+  Sales            Sales[]
 }
 
 model Sales {

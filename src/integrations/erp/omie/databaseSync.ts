@@ -1,4 +1,4 @@
-import consumeOmie from ".";
+import consumeOmie from "./getProductsOmie";
 import prisma from "../../../database/prisma-client";
 import dayjs from "dayjs";
 import { NotFound } from "../../../helpers/errors";

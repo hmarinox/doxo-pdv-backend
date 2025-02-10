@@ -10,7 +10,10 @@ const createPdvSchema = z.object( {
     name: z.string(),
     storeId: z.number(),
     macAddress: z.string(),
-    taxReceiptSerie: z.number()
+    taxReceiptSerie: z.number(),
+    migrateEmiId: z.string(),
+    migrateEmiNome: z.string(),
+    migrateEmiVersao: z.string(),
 
 } )
 
@@ -81,7 +84,10 @@ export const Pdv = {
                     name: pdv.name,
                     macAddress: pdv.macAddress,
                     storeId: pdv.storeId,
-                    taxReceiptSerie: pdv.taxReceiptSerie
+                    taxReceiptSerie: pdv.taxReceiptSerie,
+                    migrateEmiId: pdv.migrateEmiId,
+                    migrateEmiNome: pdv.migrateEmiNome,
+                    migrateEmiVersao: pdv.migrateEmiVersao
                 },
                 update: pdv
             } );

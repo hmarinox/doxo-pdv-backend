@@ -98,4 +98,5 @@ const consumeOmie = async ( call: string, param: ReqeustOmieType[], path: string
     }
 };
 
+
 export default consumeOmie;

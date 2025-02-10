@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
 import { v7 as uuidv7 } from 'uuid';
 import { JsonValue } from '@prisma/client/runtime/library';
+import sendNFCe from '../integrations/erp/omie/sendNFCeToOmie';
 const createProductSchema = z.object( {
     saleId: z.number().optional(),
     marca: z.string(),
@@ -134,6 +135,11 @@ export const Sale = {
 
         try
         {
+            const pdv = await prisma.pdv.findUnique( { where: { id: sale.pdvId } } )
+            if ( !pdv )
+                throw RegistrationCompletedError( "PDV nao encontrado!" )
+            // if ( !pdv.migrateEmiNome || !pdv.migrateEmiVersao || !pdv.migrateEmiId )
+            //     throw RegistrationCompletedError( "Necessário inserir configurações da OMIE" )
             const saleCreated = await prisma.sales.create( {
                 data: {
                     pdvId: sale.pdvId,
@@ -164,7 +170,7 @@ export const Sale = {
             if ( !saleCreated )
                 throw RegistrationCompletedError( "Erro ao registrar venda" )
 
-
+            //await sendNFCe( sale.taxReceiptKey, sale.MigrateResult, pdv.migrateEmiNome, pdv.migrateEmiVersao, pdv.migrateEmiId )
 
         } catch ( error )
         {
