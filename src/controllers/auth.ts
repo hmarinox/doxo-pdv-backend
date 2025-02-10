@@ -1,9 +1,8 @@
-import { Request, Response } from 'express'
-import prisma from '../database/prisma-client'
+import { Request, Response } from 'express';
+import prisma from '../database/prisma-client';
 import { z } from 'zod';
-import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
-import { userLevel } from '@prisma/client';
-
+import { RegistrationCompletedError, UserLogginError, ZodErrorMessage } from '../helpers/errors';
+import bcrypt from 'bcrypt'
 
 const createUserschema = z.object( {
     email: z.string(),
@@ -34,13 +33,20 @@ export const Auth = {
                 where: { email: user.email },
 
             } );
+            if ( !userCrated )
+                throw RegistrationCompletedError( "" )
         } catch ( error )
         {
             console.log( error )
             throw RegistrationCompletedError( "Erro ao buscar colaborador" )
         }
+        const passwordIsMath = await bcrypt.compare( user.password, userCrated.password )
+        if ( !passwordIsMath )
+        {
+            throw UserLogginError( "Credenciais erradas!" )
+        }
         if ( !userCrated )
-            throw RegistrationCompletedError( "Erro ao buscar colaborador" )
+            throw UserLogginError( "Erro ao buscar colaborador" )
         return res.status( 200 ).json( { message: "logado com sucesso!" } )
     },
 }

@@ -2,8 +2,7 @@ import { Request, Response } from 'express'
 import prisma from '../database/prisma-client'
 import { z } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
-import { userLevel } from '@prisma/client';
-
+import bcrypt from 'bcrypt'
 
 const createUserschema = z.object( {
     id: z.number().optional().default( 0 ),
@@ -39,8 +38,10 @@ export const Users = {
             name: string;
             email: string;
             password: string;
-            level: userLevel;
+            level: "ADMIN" | "OPERATOR";
         }
+        const salt = await bcrypt.genSalt( 10 )
+        const hash = await bcrypt.hash( user.password, salt )
         try
         {
             userCrated = await prisma.users.upsert( {
@@ -49,7 +50,7 @@ export const Users = {
                 create: {
                     name: user.name,
                     email: user.email,
-                    password: user.password,
+                    password: hash,
                     level: user.level
                 }
             } );
@@ -100,7 +101,7 @@ export const Users = {
             id: number;
             name: string;
             email: string;
-            level: userLevel;
+            level: "ADMIN" | "OPERATOR";
         }[]
         try
         {

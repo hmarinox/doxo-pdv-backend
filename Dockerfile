@@ -14,11 +14,13 @@ COPY package*.json ./
 
 
 
+
 RUN npm install
 
 FROM deps AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+
 
 
 COPY . . 
@@ -36,7 +38,9 @@ COPY --from=build  /app/prisma/schema.prisma ./prisma/schema.prisma
 COPY --from=build  /app/node_modules ./node_modules
 COPY --from=build  /app/package*.json ./
 
-# ENV DATABASE_URL=mysql://mysql_root:1234567890@mysql:3306/doxo
+
+
+ENV DATABASE_URL=${DATABASE_URL}
 # RUN npm run start:migrate
 
 # Comando para iniciar o aplicativo

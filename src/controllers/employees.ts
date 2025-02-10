@@ -1,9 +1,8 @@
-import { Request, Response } from 'express'
-import prisma from '../database/prisma-client'
+import { Request, Response } from 'express';
+import prisma from '../database/prisma-client';
 import { z } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
-import { employeeLevel } from '@prisma/client';
-
+import bcrypt from 'bcrypt'
 
 const createEmployeeSchema = z.object( {
     id: z.number().optional().default( 0 ),
@@ -49,17 +48,13 @@ export const Employees = {
             throw ZodErrorMessage( error )
         }
 
-        let employeeCrated: {
-            id: number;
-            name: string;
-            storeId: number;
-            email: string;
-            password: string;
-            registrationCode: string;
-            level: employeeLevel;
-        }
+        let employeeCrated: createemployeeType
         try
         {
+            const salt = await bcrypt.genSalt( 10 )
+
+
+            const hash = await bcrypt.hash( employee.password, salt )
             employeeCrated = await prisma.employees.upsert( {
                 where: { id: employee.id },
                 update: employee,
@@ -67,7 +62,7 @@ export const Employees = {
                     name: employee.name,
                     email: employee.email,
                     storeId: employee.storeId,
-                    password: employee.password,
+                    password: hash,
                     registrationCode: employee.registrationCode,
                     level: employee.level
                 }
@@ -150,7 +145,7 @@ export const Employees = {
             email: string;
 
             registrationCode: string;
-            level: employeeLevel;
+            level: "MANAGER" | "COLLABORATOR";
         }[]
         try
         {

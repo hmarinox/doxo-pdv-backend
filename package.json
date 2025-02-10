@@ -5,9 +5,10 @@
   "scripts": {
     "build": "tsc",
     "start": "npm run start:migrate && node ./dist/src/server.js",
-    "start:migrate": "prisma generate && prisma migrate deploy",
+    "start:migrate": "prisma generate && prisma migrate deploy && npm run seed",
     "dev": "npm run swagger && tsx --env-file .env  --watch ./src/server.ts",
     "swagger": "tsx  ./src/docs/swagger.ts",
+    "seed": "node ./dist/prisma/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
