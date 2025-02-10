@@ -1,4 +1,5 @@
-import { PrismaClient, userLevel } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
+
 
 const prisma = new PrismaClient();
 import bcrypt from 'bcrypt'
@@ -23,7 +24,7 @@ const MASTER_PASSWORD = process.env.MASTER_PASSWORD || "abcd1234"
                 name: "doxo tech",
                 email: "doxo@gmail.com",
                 password: hash,
-                level: userLevel.ADMIN
+                level: "ADMIN"
             }
         } )
     } )

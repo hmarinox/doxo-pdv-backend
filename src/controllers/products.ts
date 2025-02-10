@@ -277,7 +277,7 @@ export const Products = {
             throw NotFound( "Nenhum Produto encontrado" )
         try
         {
-            findAllProducts = findAllProducts.map( ( findOneProducts ) =>
+            findAllProducts = findAllProducts.map( ( findOneProducts: any ) =>
             {
                 return JSON.parse(
                     JSON.stringify( findOneProducts, ( key, value ) =>

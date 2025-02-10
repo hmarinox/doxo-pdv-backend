@@ -1,5 +1,6 @@
-import fetch from "node-fetch";
-import { ReqeustOmieType } from "./RequestOmietype";
+const fetch = require( "node-fetch" )
+import { ReqeustOmieType } from "./RequestOmieType";
+
 
 type ProductType = {
     aliquota_cofins: number;

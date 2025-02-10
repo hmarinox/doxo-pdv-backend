@@ -4,15 +4,15 @@ import cors, { CorsOptions } from 'cors'
 import swaggerDocs from './docs/swagger_output.json'
 import swaggerUi from 'swagger-ui-express'
 import routes from './routes'
-
 import { Errors } from './middleware/errors'
-import getAllProductsOmieAndSyncWithDB from './integrations/erp/omie/databaseSync'
-import env from './zod-validation-env'
+// import env from './zod-validation-env'
+const env = process.env
 import { CronShedule } from './services/shedule'
-import { RemoteServerSync } from './integrations/remote-server/database-sync'
 
+console.log( "env =", env )
 
 const PORT = env.PORT
+
 const operationLocal = env.OPERATION
 function server() 
 {

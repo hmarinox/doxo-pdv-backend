@@ -1,6 +1,7 @@
 import { promise } from "zod";
 import prisma from "../../database/prisma-client"
-import env from "../../zod-validation-env";
+// import env from "../../zod-validation-env";
+const env = process.env
 const remoteUrl = env.REMOTE_API_URL
 import dayjs = require( "dayjs" );
 async function pushSales()
@@ -11,7 +12,7 @@ async function pushSales()
     if ( companies.length !== 0 )
     {
         console.log( "sync company" )
-        const companiesQueue = companies.map( company => fetch( `${ remoteUrl }/remote-sync/companies`, {
+        const companiesQueue = companies.map( ( company: any ) => fetch( `${ remoteUrl }/remote-sync/companies`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -57,7 +58,7 @@ async function pushSales()
     if ( stores.length !== 0 )
     {
 
-        const storesQueue = stores.map( store => fetch( `${ remoteUrl }/remote-sync/stores`, {
+        const storesQueue = stores.map( ( store: any ) => fetch( `${ remoteUrl }/remote-sync/stores`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -102,7 +103,7 @@ async function pushSales()
     if ( pdvs.length !== 0 )
     {
 
-        const pdvQueue = pdvs.map( pdv => fetch( `${ remoteUrl }/remote-sync/pdv`, {
+        const pdvQueue = pdvs.map( ( pdv: any ) => fetch( `${ remoteUrl }/remote-sync/pdv`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -159,7 +160,7 @@ async function pushSales()
     if ( salesNotSync.length === 0 )
         return;
     console.log( "salesNotSync = ", salesNotSync )
-    const queue = salesNotSync.map( ( sale ) => fetch( `${ remoteUrl }/remote-sync/sale`, {
+    const queue = salesNotSync.map( ( sale: any ) => fetch( `${ remoteUrl }/remote-sync/sale`, {
         method: "POST",
         headers: {
             "Content-type": "application/json"
