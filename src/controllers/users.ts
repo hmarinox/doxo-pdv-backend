@@ -6,12 +6,10 @@ import { userLevel } from '@prisma/client';
 
 
 const createUserschema = z.object( {
-    id: z.number().optional(),
+    id: z.number().optional().default( 0 ),
     name: z.string(),
-    storeId: z.number(),
     email: z.string(),
     password: z.string(),
-    registrationCode: z.string(),
     level: z.union( [
         z.literal( 'ADMIN' ),
         z.literal( 'OPERATOR' )
@@ -78,6 +76,12 @@ export const Users = {
                 where: {
                     id: parseInt( id ),
                 },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    level: true,
+                }
             } );
 
             if ( !user )

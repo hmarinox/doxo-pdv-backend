@@ -6,7 +6,7 @@ import { employeeLevel } from '@prisma/client';
 
 
 const createEmployeeSchema = z.object( {
-    id: z.number().optional(),
+    id: z.number().optional().default( 0 ),
     name: z.string(),
     storeId: z.number(),
     email: z.string(),
@@ -19,7 +19,7 @@ const createEmployeeSchema = z.object( {
     ] )
 } )
 const createSettingsemployeeSchema = z.object( {
-    id: z.number().optional(),
+    id: z.number().optional().default( 0 ),
     employeeId: z.number(),
     migrateAccessKey: z.string(),
     migratePartnerKey: z.string(),
@@ -96,6 +96,12 @@ export const Employees = {
                 where: {
                     id: parseInt( id ),
                 },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    level: true,
+                }
             } );
 
             if ( !employee )
@@ -117,6 +123,12 @@ export const Employees = {
                 where: {
                     registrationCode: id,
                 },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    level: true,
+                }
             } );
 
             if ( !employee )
