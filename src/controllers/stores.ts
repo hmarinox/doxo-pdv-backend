@@ -168,6 +168,7 @@ export const Stores = {
     {
         try
         {
+            console.log( "params = ", req.params )
             const { id } = req.params as { id: string }
             const { companyId } = req.query as { companyId: string }
 
@@ -193,7 +194,16 @@ export const Stores = {
                             emitModel: true,
                             ufCode: true,
                             cityCode: true,
-                            Company: true
+                            Company: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    cnpj: true,
+                                    ie: true,
+                                    companyUUID: true,
+                                    Settings: true
+                                }
+                            }
                         }
                     },
 

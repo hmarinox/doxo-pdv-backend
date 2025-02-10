@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { ReqeustOmieType } from "./RequestOmietype";
 
 type ProductType = {
     aliquota_cofins: number;
@@ -62,15 +63,13 @@ type FindAllProductsOmieType =
         produto_servico_cadastro: ProductType[]
 
     }
-const consumeOmie = async ( call: any, param: any, path: any ) =>
+const consumeOmie = async ( call: string, param: ReqeustOmieType[], path: string, appKey: string, appSecret: string ) =>
 {
     try
     {
 
 
         const url = `${ process.env.OMIE_API_URL }${ path }`;
-        const appKey = process.env.APP_KEY;
-        const appSecret = process.env.APP_SECRET;
 
         const newRequest = {
             call,

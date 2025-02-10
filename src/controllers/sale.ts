@@ -345,8 +345,13 @@ export const Sale = {
         {
             console.log( "FindSaleInfo" )
             const { pdvId } = req.params as { pdvId: string }
-            console.log( pdvId )
+            console.log( "pdvId = ", pdvId )
             const checkpopulate = await prisma.taxReceipt.findMany( {
+                where: {
+                    Sale: {
+                        pdvId: parseInt( pdvId ),
+                    }
+                },
                 select: {
                     id: true,
                     taxReceiptNumber: true,
@@ -363,6 +368,7 @@ export const Sale = {
 
                 },
             } )
+            console.log( "checkpopulate = ", checkpopulate )
             if ( checkpopulate.length === 0 )
             {
                 const pdv = await prisma.pdv.findFirstOrThrow( { where: { id: parseInt( pdvId ) } } )
@@ -400,6 +406,7 @@ export const Sale = {
 
                 },
             } );
+            console.log( "lastTaxReceipt = ", lastTaxReceipt )
             if ( !lastTaxReceipt )
                 throw NotFound( "Última nota não encontrada!" )
 

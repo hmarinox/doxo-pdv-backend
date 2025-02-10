@@ -1,6 +1,7 @@
 import consumeOmie from ".";
 import prisma from "../../../database/prisma-client";
 import dayjs from "dayjs";
+import { NotFound } from "../../../helpers/errors";
 const getAllProductsOmieAndSyncWithDB = async () =>
 {
     console.log( "getAllProductsOmieAndSyncWithDB  data = ", dayjs().format( "DD/MM/YY - HH:mm:ss" ) )
@@ -19,10 +20,23 @@ const getAllProductsOmieAndSyncWithDB = async () =>
         const path = "/geral/produtos/";
 
         const findAllProducts = await prisma.products.findMany();
+        const company = await prisma.companies.findFirst( {
+            select: {
+                Settings: true
+            }
+        } )
+        if ( !company )
+        {
+            throw NotFound( "Empresa não encontrada" )
+        }
+
         const finAllProductsOmie = await consumeOmie(
             callExample,
             paramExample,
-            path
+            path,
+            company?.Settings[0].omieAppKey,
+            company?.Settings[0].omieAppSecret,
+
         );
 
         if ( !finAllProductsOmie )
