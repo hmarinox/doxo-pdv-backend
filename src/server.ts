@@ -8,8 +8,9 @@ import { Errors } from './middleware/errors'
 // import env from './zod-validation-env'
 const env = process.env
 import { CronShedule } from './services/shedule'
+import getAllProductsOmieAndSyncWithDB from './integrations/erp/omie/databaseSync'
 
-console.log( "env =", env )
+
 
 const PORT = env.PORT
 
@@ -29,7 +30,7 @@ function server()
     }
     app.use( cors( options ) )
 
-    //getAllProductsOmieAndSyncWithDB()
+    getAllProductsOmieAndSyncWithDB()
     if ( operationLocal === 'local' )
     {
 

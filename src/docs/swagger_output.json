@@ -135,12 +135,12 @@
         }
       }
     },
-    "/api/v1/products/ean/{ean}": {
+    "/api/v1/products/code/{code}": {
       "get": {
         "description": "",
         "parameters": [
           {
-            "name": "ean",
+            "name": "code",
             "in": "path",
             "required": true,
             "schema": {

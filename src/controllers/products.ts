@@ -2,6 +2,8 @@ import { Request, Response } from 'express'
 import prisma from '../database/prisma-client'
 import { z, ZodError } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
+import parseGS1Barcode from '../helpers/decode-2D-code'
+import { validateHeaderName } from 'http';
 const createProductSchema = z.object( {
     marca: z.string(),
     descricao: z.string(),
@@ -37,6 +39,8 @@ const createProductSchema = z.object( {
 } )
 type ProductType = z.infer<typeof createProductSchema>
 
+
+const BARCODE_LENGTH = 13
 export const Products = {
 
     Create: async ( req: Request, res: Response ): Promise<any> =>
@@ -187,14 +191,33 @@ export const Products = {
             throw NotFound( "Produto não encontrado" )
         return res.status( 200 ).json( product );
     },
-    FindByBarcode: async ( req: Request, res: Response ): Promise<any> =>
+    FindByCode: async ( req: Request, res: Response ): Promise<any> =>
     {
 
-
-        const { ean } = req.params as { ean: string };
+        let weight = 1;
+        let price: number = -1;
+        let { code } = req.params as { code: string };
+        let validity;
+        if ( code.length > BARCODE_LENGTH )
+        {
+            const result = parseGS1Barcode( code )
+            console.log()
+            code = result.GTIN
+            if ( result.weight )
+                weight = result.weight
+            if ( result.price )
+                price = result.price
+            if ( result.validity )
+                validity = result.validity
+        }
+        else if ( code.length === BARCODE_LENGTH && code.startsWith( "2", 0 ) )
+        {
+            weight = parseInt( code.substring( 7, 12 ) ) / 1000
+            code = code.substring( 2, 7 )
+        }
         const findOneProducts = await prisma.products.findFirst( {
             where: {
-                ean: ean,
+                ean: code,
             },
         } );
 
@@ -202,8 +225,62 @@ export const Products = {
             throw NotFound( "Produto não encontrado" );
         try
         {
-            const product = JSON.parse(
-                JSON.stringify( findOneProducts, ( key, value ) =>
+            console.log( typeof findOneProducts )
+            let product: {
+                marca: string;
+                descricao: string;
+                unidade: string;
+                ncm: string;
+                valor_unitario: number;
+                ean: string | null;
+                codigo: string;
+                codigo_produto: bigint;
+                codigo_produto_integracao: string;
+                qtd: number;
+                peso_bruto: number;
+                id: number;
+                ageToBuy: number;
+                dias_garantia: number;
+                tagId: string | null;
+                tagChecked: boolean | null;
+                datamatrixId: string | null;
+                aliquota_cofins: number;
+                aliquota_ibpt: number;
+                aliquota_icms: number;
+                aliquota_pis: number;
+                cest: string | null;
+                cfop: string | null;
+                csosn_icms: string | null;
+                cst_cofins: string | null;
+                cst_icms: string | null;
+                cst_pis: string | null;
+                per_icms_fcp: number;
+                red_base_cofins: number;
+                red_base_icms: number;
+                red_base_pis: number;
+                tipoItem: string;
+                valor_total: number;
+                validade?: string;
+            }
+
+            product = {
+                ...findOneProducts,
+                qtd: 1,
+                valor_total: findOneProducts.valor_unitario,
+                validade: validity
+            }
+
+            if ( product.unidade === 'KG' )
+            {
+                console.log( "weight =", price / product.valor_unitario )
+                weight = price == -1 ? weight : price / product.valor_unitario
+                product.peso_bruto = weight
+                product.qtd = weight
+                product.valor_total = price == -1 ? product.valor_unitario * weight : price
+            }
+            console.log( product )
+            product = JSON.parse(
+                JSON.stringify( product, ( key, value ) =>
                     typeof value === 'bigint' ? value.toString() : value
                 )
             );
@@ -314,3 +391,4 @@ export const Products = {
         }
     }
 }
+

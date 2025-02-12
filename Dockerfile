@@ -44,10 +44,7 @@ ENV DATABASE_URL=${DATABASE_URL}
 # RUN npm run start:migrate
 
 # Comando para iniciar o aplicativo
-# CMD ["npm", "run", "start:migrate:prod"]
+
 CMD ["npm", "start"]
-
-
-
 
 # CMD ["tail", "-f", "/dev/null"]
