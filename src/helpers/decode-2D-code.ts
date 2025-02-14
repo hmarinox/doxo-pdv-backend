@@ -1,5 +1,6 @@
 import dayjs from "dayjs"
 import customParseFormat from "dayjs/plugin/customParseFormat"
+import Utils from "../lib/utils"
 dayjs.extend( customParseFormat )
 
 const GS1_SEPARATOR = "\u001D"
@@ -21,10 +22,7 @@ function adjustBarcode( barcode: string ): string
     barcode = barcode.replace( /\`/g, GS1_SEPARATOR )
     return barcode
 }
-function removeLeadingZeros( str: string )
-{
-    return str.replace( /^0+/, "" ); // Remove todos os zeros do início
-}
+
 function parseGS1Barcode( barcode: string ): GS1BarcodeType
 {
     barcode = adjustBarcode( barcode )
@@ -72,9 +70,9 @@ function parseGS1Barcode( barcode: string ): GS1BarcodeType
         {
             result[info.label] = value;
             if ( info.label === aiPatterns["17"].label )
-                result[info.label] = dayjs( value, "YYMMDD" ).format( "DD/MM/YY" );
+                result[info.label] = dayjs( value, "YYMMDD" )
             if ( info.label === aiPatterns["01"].label )
-                result[info.label] = removeLeadingZeros( value )
+                result[info.label] = Utils.removeLeadingZeros( value )
         }
     }
     return result;

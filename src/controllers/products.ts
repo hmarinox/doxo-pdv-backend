@@ -3,7 +3,8 @@ import prisma from '../database/prisma-client'
 import { z, ZodError } from 'zod';
 import { GenericError, NotFound, RegistrationCompletedError, ZodErrorMessage } from '../helpers/errors';
 import parseGS1Barcode from '../helpers/decode-2D-code'
-import { validateHeaderName } from 'http';
+import Utils from '../lib/utils';
+const INITIAL_CHARACTER_WEIGHTABLE_PRODUCT = "2"
 const createProductSchema = z.object( {
     marca: z.string(),
     descricao: z.string(),
@@ -194,14 +195,13 @@ export const Products = {
     FindByCode: async ( req: Request, res: Response ): Promise<any> =>
     {
 
-        let weight = 1;
+        let weight = 0;
         let price: number = -1;
         let { code } = req.params as { code: string };
         let validity;
         if ( code.length > BARCODE_LENGTH )
         {
             const result = parseGS1Barcode( code )
-            console.log()
             code = result.GTIN
             if ( result.weight )
                 weight = result.weight
@@ -210,15 +210,22 @@ export const Products = {
             if ( result.validity )
                 validity = result.validity
         }
-        else if ( code.length === BARCODE_LENGTH && code.startsWith( "2", 0 ) )
+        else if ( code.length === BARCODE_LENGTH && code.startsWith( INITIAL_CHARACTER_WEIGHTABLE_PRODUCT, 0 ) )
         {
             weight = parseInt( code.substring( 7, 12 ) ) / 1000
-            code = code.substring( 2, 7 )
+            code = Utils.removeLeadingZeros( code.substring( 2, 7 ) )
         }
+
+        let whereClause: { ean?: string, id?: number } = {
+            ean: code,
+        }
+        if ( code.length < BARCODE_LENGTH )
+            whereClause = {
+                id: parseInt( code ),
+            }
+
         const findOneProducts = await prisma.products.findFirst( {
-            where: {
-                ean: code,
-            },
+            where: whereClause
         } );
 
         if ( !findOneProducts )
@@ -272,7 +279,6 @@ export const Products = {
 
             if ( product.unidade === 'KG' )
             {
-                console.log( "weight =", price / product.valor_unitario )
                 weight = price == -1 ? weight : price / product.valor_unitario
                 product.peso_bruto = weight
                 product.qtd = weight

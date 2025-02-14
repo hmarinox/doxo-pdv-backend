@@ -15,7 +15,7 @@ services:
     build:
       context: .
     env_file:
-      - "./.env.prod"
+      - ".env"
     environment:
       NODE_ENV: productions
       OMIE_API_URL: ${OMIE_API_URL}
@@ -31,7 +31,7 @@ services:
     image: bitnami/mysql:9.0.1
     container_name: mysql_database_prod
     env_file:
-      - "./.env.prod"
+      - ".env"
     ports:
       - 3306:3306
     environment:
