@@ -23,6 +23,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       PORT: ${PORT}
       OPERATION: local
+    restart: always
     ports:
       - ${PORT}:${PORT}
     depends_on:
